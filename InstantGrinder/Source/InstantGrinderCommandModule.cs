@@ -37,7 +37,7 @@ namespace InstantGrinder
 
             if (!Plugin.TryGetGridGroupByName(gridName, out var gridGroup))
             {
-                Context.Respond($"Grid not found by name: \"{gridName}\". {HelpSentence}", Color.Yellow);
+                Context.Respond($"Grid not found by name: \"{gridName}\". Try double quotes (\"foo bar\"). {HelpSentence}", Color.Yellow);
                 return;
             }
 
@@ -95,7 +95,7 @@ namespace InstantGrinder
         });
 
         [Command(Cmd_Help, "Show help.")]
-        [Permission(MyPromoteLevel.Admin)]
+        [Permission(MyPromoteLevel.None)]
         public void Help()
         {
             var msgBuilder = new StringBuilder();
