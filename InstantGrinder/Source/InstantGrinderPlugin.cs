@@ -7,22 +7,14 @@ using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.World;
+using TorchDatabaseIntegration.InfluxDB;
 using VRage.Game.Entity;
-using Torch.API.Managers;
-using Torch.Server.InfluxDb;
 
 namespace InstantGrinder
 {
     public sealed class InstantGrinderPlugin : TorchPluginBaseEx
     {
         static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        InfluxDbClient _dbClient;
-
-        protected override void OnGameLoaded()
-        {
-            var dbManager = Torch.CurrentSession.Managers.GetManager<InfluxDbManager>();
-            _dbClient = dbManager.Client;
-        }
 
         public bool TryGetGridGroupByName(string gridName, out MyCubeGrid[] foundGridGroup)
         {
@@ -71,15 +63,14 @@ namespace InstantGrinder
             }
 
             // report
-            var point = _dbClient
-                .MakePointIn("instant_grinder")
+            InfluxDbPointFactory
+                .Measurement("instant_grinder")
                 .Tag("player_name", player.DisplayName)
                 .Tag("steam_id", $"{player.SteamId()}")
                 .Field("exec_count", 1)
                 .Field("grid_count", gridGroup.Count())
-                .Field("block_count", blocks.Length);
-
-            _dbClient.WritePoints(point);
+                .Field("block_count", blocks.Length)
+                .Write();
         }
 
         void CopyItems(MyEntity src, MyInventory dst)
