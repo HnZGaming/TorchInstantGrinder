@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using InstantGrinder.Reflections;
-using InstantGrinder.Utils;
 using NLog;
 using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.World;
+using Torch;
 using TorchDatabaseIntegration.InfluxDB;
+using TorchUtils;
 using VRage.Game.Entity;
 
 namespace InstantGrinder
 {
-    public sealed class InstantGrinderPlugin : TorchPluginBaseEx
+    public sealed class InstantGrinderPlugin : TorchPluginBase
     {
         static readonly Logger Log = LogManager.GetCurrentClassLogger();
 

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace InstantGrinder.Utils
+namespace TorchUtils
 {
-    public static class LinqUtils
+    internal static class CollectionUtils
     {
         public static bool TryGetFirst<T>(this IEnumerable<T> self, Func<T, bool> f, out T foundValue)
         {
@@ -45,9 +45,10 @@ namespace InstantGrinder.Utils
             return false;
         }
 
-        public static string ToStringSeq<T>(this IEnumerable<T> self)
+        public static void Increment<K>(this IDictionary<K, int> self, K key)
         {
-            return $"[{string.Join(", ", self)}]";
+            self.TryGetValue(key, out var value);
+            self[key] = value + 1;
         }
     }
 }

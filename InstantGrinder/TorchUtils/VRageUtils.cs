@@ -5,9 +5,9 @@ using Sandbox.Game.World;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 
-namespace InstantGrinder.Utils
+namespace TorchUtils
 {
-    public static class VRageUtils
+    internal static class VRageUtils
     {
         public static IEnumerable<long> Owners(this IMyCubeGrid self)
         {

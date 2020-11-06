@@ -7,7 +7,6 @@
         <ProjectGuid>{41441CCF-892D-4728-A6F6-AAAD17E9D5C2}</ProjectGuid>
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>InstantGrinder</RootNamespace>
         <AssemblyName>InstantGrinder</AssemblyName>
         <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
@@ -144,21 +143,25 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="Source\InstantGrinderCommandModule.cs" />
-        <Compile Include="Source\InstantGrinderPlugin.cs" />
-        <Compile Include="Source\CommandErrorResponseGenerator.cs" />
-        <Compile Include="Source\GrindByNameCommandOption.cs" />
-        <Compile Include="Source\Reflections\MyInventoryAddItemsInternalReflection.cs" />
-        <Compile Include="Source\Reflections\MyInventoryTransferItemInternalReflection.cs" />
-        <Compile Include="Source\Reflections\MySlimBlockDeconstructStockpileReflection.cs" />
-        <Compile Include="Source\Reflections\MySlimBlockStockpileReflection.cs" />
-        <Compile Include="Source\Utils\ActionDisposable.cs" />
-        <Compile Include="Source\Utils\LinqUtils.cs" />
-        <Compile Include="Source\Utils\TaskUtils.cs" />
-        <Compile Include="Source\Utils\ThreadPoolTask.cs" />
-        <Compile Include="Source\Utils\TorchPluginBaseEx.cs" />
-        <Compile Include="Source\Utils\TorchUtils.cs" />
-        <Compile Include="Source\Utils\VRageUtils.cs" />
+        <Compile Include="InstantGrinder\InstantGrinderCommandModule.cs" />
+        <Compile Include="InstantGrinder\InstantGrinderPlugin.cs" />
+        <Compile Include="InstantGrinder\GrindByNameCommandOption.cs" />
+        <Compile Include="InstantGrinder\Reflections\MyInventoryAddItemsInternalReflection.cs" />
+        <Compile Include="InstantGrinder\Reflections\MyInventoryTransferItemInternalReflection.cs" />
+        <Compile Include="InstantGrinder\Reflections\MySlimBlockDeconstructStockpileReflection.cs" />
+        <Compile Include="InstantGrinder\Reflections\MySlimBlockStockpileReflection.cs" />
+        <Compile Include="TorchUtils\ActionDisposable.cs" />
+        <Compile Include="TorchUtils\CollectionUtils.cs" />
+        <Compile Include="TorchUtils\CommandErrorResponseGenerator.cs" />
+        <Compile Include="TorchUtils\DebugUtils.cs" />
+        <Compile Include="TorchUtils\DisposableCollection.cs" />
+        <Compile Include="TorchUtils\DisposableUtils.cs" />
+        <Compile Include="TorchUtils\TaskUtils.cs" />
+        <Compile Include="TorchUtils\ThreadPoolTask.cs" />
+        <Compile Include="TorchUtils\ThreadSafeThrottle.cs" />
+        <Compile Include="TorchUtils\TorchPluginUtils.cs" />
+        <Compile Include="TorchUtils\TorchUtils.cs" />
+        <Compile Include="TorchUtils\VRageUtils.cs" />
     </ItemGroup>
     <ItemGroup>
       <Content Include="manifest.xml" />

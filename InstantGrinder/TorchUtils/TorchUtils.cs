@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using Torch.API;
-using Torch.Commands;
 using Torch.API.Managers;
+using Torch.Commands;
 using VRage.Game.ModAPI;
 
-namespace InstantGrinder.Utils
+namespace TorchUtils
 {
-    public static class TorchUtils
+    internal static class TorchUtils
     {
         public static IEnumerable<Command> GetPluginCommands(this ITorchBase self, string category, MyPromoteLevel? promoteLevel)
         {

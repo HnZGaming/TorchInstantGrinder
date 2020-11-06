@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using NLog;
 
-namespace InstantGrinder.Utils
+namespace TorchUtils
 {
-    public static class TaskUtils
+    internal static class TaskUtils
     {
         public static async void Forget(this Task self, ILogger logger)
         {

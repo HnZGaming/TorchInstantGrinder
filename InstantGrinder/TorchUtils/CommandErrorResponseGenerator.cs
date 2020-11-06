@@ -4,7 +4,7 @@ using NLog;
 using Torch.Commands;
 using VRageMath;
 
-namespace InstantGrinder
+namespace TorchUtils
 {
     public static class CommandErrorResponseGenerator
     {

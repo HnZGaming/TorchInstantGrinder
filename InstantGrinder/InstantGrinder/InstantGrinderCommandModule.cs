@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Text;
-using InstantGrinder.Utils;
 using NLog;
 using Sandbox.Game;
 using Sandbox.Game.World;
 using Torch.Commands;
 using Torch.Commands.Permissions;
+using TorchUtils;
 using VRage.Game.ModAPI;
 using VRageMath;
 
