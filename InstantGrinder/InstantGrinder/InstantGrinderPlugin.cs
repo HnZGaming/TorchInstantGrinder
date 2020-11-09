@@ -7,7 +7,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.World;
 using Torch;
-using TorchDatabaseIntegration.InfluxDB;
+using InfluxDb;
 using TorchUtils;
 using VRage.Game.Entity;
 
