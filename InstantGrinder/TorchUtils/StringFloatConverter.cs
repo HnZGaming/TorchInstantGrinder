@@ -1,6 +1,6 @@
 ﻿namespace TorchUtils
 {
-    public class StringFloatConverter : AbsJsonConverter<float>
+    internal class StringFloatConverter : AbsJsonConverter<float>
     {
         protected override float Parse(string str)
         {

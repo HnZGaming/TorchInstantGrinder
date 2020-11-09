@@ -31,8 +31,8 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="TorchDatabaseIntegration">
-            <HintPath>$(SolutionDir)\..\TorchDatabaseIntegration\TorchDatabaseIntegration\bin\Release\TorchDatabaseIntegration.dll</HintPath>
+        <Reference Include="TorchInfluxDb">
+            <HintPath>$(SolutionDir)\..\TorchInfluxDb\TorchInfluxDb\bin\Release\TorchInfluxDb.dll</HintPath>
         </Reference>
         <Reference Include="NLog">
             <HintPath>$(SolutionDir)\TorchBinaries\NLog.dll</HintPath>
@@ -150,18 +150,21 @@
         <Compile Include="InstantGrinder\Reflections\MyInventoryTransferItemInternalReflection.cs" />
         <Compile Include="InstantGrinder\Reflections\MySlimBlockDeconstructStockpileReflection.cs" />
         <Compile Include="InstantGrinder\Reflections\MySlimBlockStockpileReflection.cs" />
+        <Compile Include="TorchUtils\AbsJsonConverter.cs" />
         <Compile Include="TorchUtils\ActionDisposable.cs" />
         <Compile Include="TorchUtils\CollectionUtils.cs" />
         <Compile Include="TorchUtils\CommandErrorResponseGenerator.cs" />
         <Compile Include="TorchUtils\DebugUtils.cs" />
         <Compile Include="TorchUtils\DisposableCollection.cs" />
         <Compile Include="TorchUtils\DisposableUtils.cs" />
+        <Compile Include="TorchUtils\StringFloatConverter.cs" />
         <Compile Include="TorchUtils\TaskUtils.cs" />
         <Compile Include="TorchUtils\ThreadPoolTask.cs" />
         <Compile Include="TorchUtils\ThreadSafeThrottle.cs" />
         <Compile Include="TorchUtils\TorchPluginUtils.cs" />
         <Compile Include="TorchUtils\TorchUtils.cs" />
         <Compile Include="TorchUtils\VRageUtils.cs" />
+        <Compile Include="TorchUtils\XmlUtils.cs" />
     </ItemGroup>
     <ItemGroup>
       <Content Include="manifest.xml" />
