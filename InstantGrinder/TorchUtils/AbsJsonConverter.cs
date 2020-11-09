@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace TorchUtils
 {
-	public abstract class AbsJsonConverter<T> : JsonConverter
+	internal abstract class AbsJsonConverter<T> : JsonConverter
 	{
 		protected abstract T Parse(string str);
 		protected abstract string ReverseParse(T obj);

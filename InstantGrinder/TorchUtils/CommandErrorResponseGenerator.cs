@@ -6,7 +6,7 @@ using VRageMath;
 
 namespace TorchUtils
 {
-    public static class CommandErrorResponseGenerator
+    internal static class CommandErrorResponseGenerator
     {
         readonly static Random Random = new Random();
 
