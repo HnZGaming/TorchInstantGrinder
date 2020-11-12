@@ -47,6 +47,8 @@ namespace InstantGrinder
                     msgBuilder.AppendLine("Grind them back with command:");
                     msgBuilder.AppendLine($">> !grind name \"{myPlayerName}\"");
                     SendMessageToPlayer(foundPlayer, Color.Red, msgBuilder.ToString());
+
+                    Context.Respond($"You've sent a death threat to {gridName}.");
                     return;
                 }
 
