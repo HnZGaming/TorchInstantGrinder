@@ -54,6 +54,12 @@ namespace InstantGrinder
                 return;
             }
 
+            if (!Plugin.CanGrind(player.IdentityId, gridGroup))
+            {
+                Context.Respond($"Grid found, but not yours: \"{gridName}\". You need to be a \"big owner\". {HelpSentence}", Color.Yellow);
+                return;
+            }
+
             if (gridGroup.Length > 1 && !option.Force)
             {
                 var msgBuilder = new StringBuilder();
@@ -66,12 +72,6 @@ namespace InstantGrinder
                 msgBuilder.AppendLine();
                 msgBuilder.AppendLine($"To proceed, type !{Cmd_Category} {Cmd_GrindByName} \"{gridName}\" {GrindByNameCommandOption.Prefix}{GrindByNameCommandOption.Key_Force}");
                 Context.Respond(msgBuilder.ToString(), Color.Yellow);
-                return;
-            }
-
-            if (!Plugin.CanGrind(player.IdentityId, gridGroup))
-            {
-                Context.Respond($"Grid not yours: \"{gridName}\". {HelpSentence}", Color.Yellow);
                 return;
             }
 
