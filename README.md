@@ -18,3 +18,7 @@ Allows players to grind grids instantly with a command.
 
 * Character inventory will (most likely) exceed the capacity. Dying or disconnecting in that state may cause items to vanish.
 * You can not grind a player.
+
+## Dependency
+
+* [TorchInfluxDb](https://github.com/HnZGaming/TorchInfluxDb) (must be disabled if not hooked up with a database instance)
