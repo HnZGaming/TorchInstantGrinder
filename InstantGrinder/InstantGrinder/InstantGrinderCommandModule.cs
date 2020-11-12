@@ -3,6 +3,7 @@ using System.Text;
 using NLog;
 using Sandbox.Game;
 using Sandbox.Game.World;
+using Torch.API.Managers;
 using Torch.Commands;
 using Torch.Commands.Permissions;
 using TorchUtils;
@@ -37,6 +38,18 @@ namespace InstantGrinder
 
             if (!Plugin.TryGetGridGroupByName(gridName, out var gridGroup))
             {
+                if (Plugin.TryGetPlayerByName(gridName, out var foundPlayer))
+                {
+                    var myPlayerName = Context.Player.DisplayName;
+                    var msgBuilder = new StringBuilder();
+                    msgBuilder.AppendLine("WARNING!!");
+                    msgBuilder.AppendLine($"{myPlayerName} tried to grind you! xD");
+                    msgBuilder.AppendLine("Grind them back with command:");
+                    msgBuilder.AppendLine($">> !grind name \"{myPlayerName}\"");
+                    SendMessageToPlayer(foundPlayer, Color.Red, msgBuilder.ToString());
+                    return;
+                }
+
                 Context.Respond($"Grid not found by name: \"{gridName}\". Try double quotes (\"foo bar\"). {HelpSentence}", Color.Yellow);
                 return;
             }
@@ -93,6 +106,12 @@ namespace InstantGrinder
 
             Plugin.GridGridGroup(player, gridGroup);
         });
+
+        void SendMessageToPlayer(MyPlayer player, Color color, string message)
+        {
+            var chat = Plugin.Torch.Managers.GetManager<IChatManagerServer>();
+            chat.SendMessageAsOther(null, message, color, player.SteamId());
+        }
 
         [Command(Cmd_Help, "Show help.")]
         [Permission(MyPromoteLevel.None)]
