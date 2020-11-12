@@ -56,7 +56,8 @@ namespace InstantGrinder
                 return;
             }
 
-            if (!Plugin.CanGrind(player.IdentityId, gridGroup))
+            if (player.PromoteLevel == MyPromoteLevel.None && 
+                !Plugin.CanGrind(player.IdentityId, gridGroup))
             {
                 Context.Respond($"Grid found, but not yours: \"{gridName}\". You need to be a \"big owner\". {HelpSentence}", Color.Yellow);
                 return;
@@ -87,26 +88,6 @@ namespace InstantGrinder
             {
                 Context.Respond("Your character inventory is more than full. Store your items as soon as possible. Your items may be deleted anytime.", Color.Yellow);
             }
-        });
-
-        [Command(Cmd_GrindByNameAdmin, "Grind a grid and transfer components to player's character inventory.")]
-        [Permission(MyPromoteLevel.Admin)]
-        public void GrindByNameAdmin(string playerName, string gridName) => this.CatchAndReport(() =>
-        {
-            if (!Plugin.TryGetGridGroupByName(gridName, out var gridGroup))
-            {
-                Context.Respond($"Grid not found by name: \"{gridName}\". {HelpSentence}", Color.Yellow);
-                return;
-            }
-
-            var player = MySession.Static.Players.GetPlayerByName(playerName);
-            if (player == null)
-            {
-                Context.Respond($"Player not found by name: \"{playerName}\". {HelpSentence}.", Color.Yellow);
-                return;
-            }
-
-            Plugin.GridGridGroup(player, gridGroup);
         });
 
         void SendMessageToPlayer(MyPlayer player, Color color, string message)
