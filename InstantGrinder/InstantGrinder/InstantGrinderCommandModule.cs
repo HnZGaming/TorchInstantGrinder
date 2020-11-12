@@ -3,6 +3,7 @@ using System.Text;
 using NLog;
 using Sandbox.Game;
 using Sandbox.Game.World;
+using Torch.API.Managers;
 using Torch.Commands;
 using Torch.Commands.Permissions;
 using TorchUtils;
@@ -37,7 +38,28 @@ namespace InstantGrinder
 
             if (!Plugin.TryGetGridGroupByName(gridName, out var gridGroup))
             {
+                if (Plugin.TryGetPlayerByName(gridName, out var foundPlayer))
+                {
+                    var myPlayerName = Context.Player.DisplayName;
+                    var msgBuilder = new StringBuilder();
+                    msgBuilder.AppendLine("WARNING!!");
+                    msgBuilder.AppendLine($"{myPlayerName} tried to grind you! xD");
+                    msgBuilder.AppendLine("Grind them back with command:");
+                    msgBuilder.AppendLine($">> !grind name \"{myPlayerName}\"");
+                    SendMessageToPlayer(foundPlayer, Color.Red, msgBuilder.ToString());
+
+                    Context.Respond($"You've sent a death threat to {gridName}.");
+                    return;
+                }
+
                 Context.Respond($"Grid not found by name: \"{gridName}\". Try double quotes (\"foo bar\"). {HelpSentence}", Color.Yellow);
+                return;
+            }
+
+            if (player.PromoteLevel == MyPromoteLevel.None && 
+                !Plugin.CanGrind(player.IdentityId, gridGroup))
+            {
+                Context.Respond($"Grid found, but not yours: \"{gridName}\". You need to be a \"big owner\". {HelpSentence}", Color.Yellow);
                 return;
             }
 
@@ -56,12 +78,6 @@ namespace InstantGrinder
                 return;
             }
 
-            if (!Plugin.CanGrind(player.IdentityId, gridGroup))
-            {
-                Context.Respond($"Grid not yours: \"{gridName}\". {HelpSentence}", Color.Yellow);
-                return;
-            }
-
             Plugin.GridGridGroup((MyPlayer) player, gridGroup);
 
             Context.Respond($"Finished grinding: \"{gridName}\"", Color.White);
@@ -74,25 +90,11 @@ namespace InstantGrinder
             }
         });
 
-        [Command(Cmd_GrindByNameAdmin, "Grind a grid and transfer components to player's character inventory.")]
-        [Permission(MyPromoteLevel.Admin)]
-        public void GrindByNameAdmin(string playerName, string gridName) => this.CatchAndReport(() =>
+        void SendMessageToPlayer(MyPlayer player, Color color, string message)
         {
-            if (!Plugin.TryGetGridGroupByName(gridName, out var gridGroup))
-            {
-                Context.Respond($"Grid not found by name: \"{gridName}\". {HelpSentence}", Color.Yellow);
-                return;
-            }
-
-            var player = MySession.Static.Players.GetPlayerByName(playerName);
-            if (player == null)
-            {
-                Context.Respond($"Player not found by name: \"{playerName}\". {HelpSentence}.", Color.Yellow);
-                return;
-            }
-
-            Plugin.GridGridGroup(player, gridGroup);
-        });
+            var chat = Plugin.Torch.Managers.GetManager<IChatManagerServer>();
+            chat.SendMessageAsOther(null, message, color, player.SteamId());
+        }
 
         [Command(Cmd_Help, "Show help.")]
         [Permission(MyPromoteLevel.None)]

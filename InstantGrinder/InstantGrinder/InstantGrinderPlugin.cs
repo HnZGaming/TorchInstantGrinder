@@ -34,6 +34,22 @@ namespace InstantGrinder
             return false;
         }
 
+        public bool TryGetPlayerByName(string playerName, out MyPlayer player)
+        {
+            var onlinePlayers = MySession.Static.Players.GetOnlinePlayers().ToArray();
+            foreach (var onlinePlayer in onlinePlayers)
+            {
+                if (onlinePlayer.DisplayName == playerName)
+                {
+                    player = onlinePlayer;
+                    return true;
+                }
+            }
+
+            player = default;
+            return false;
+        }
+
         public bool CanGrind(long playerId, IEnumerable<MyCubeGrid> gridGroup)
         {
             foreach (var grid in gridGroup)
@@ -56,7 +72,7 @@ namespace InstantGrinder
                 if (block.FatBlock == null) continue;
                 CopyItems(block.FatBlock, playerInventory);
             }
-            
+
             playerInventory.Refresh();
 
             // then grind them down
@@ -64,7 +80,7 @@ namespace InstantGrinder
             {
                 GrindBlock(block, playerInventory);
             }
-            
+
             playerInventory.Refresh();
 
             // report
