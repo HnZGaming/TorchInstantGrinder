@@ -56,12 +56,16 @@ namespace InstantGrinder
                 if (block.FatBlock == null) continue;
                 CopyItems(block.FatBlock, playerInventory);
             }
+            
+            playerInventory.Refresh();
 
             // then grind them down
             foreach (var block in blocks)
             {
                 GrindBlock(block, playerInventory);
             }
+            
+            playerInventory.Refresh();
 
             // report
             InfluxDbPointFactory
