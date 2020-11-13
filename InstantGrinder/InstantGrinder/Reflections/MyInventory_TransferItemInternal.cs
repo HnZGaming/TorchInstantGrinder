@@ -5,7 +5,7 @@ using VRage;
 
 namespace InstantGrinder.Reflections
 {
-    public static class MyInventoryTransferItemInternalReflection
+    public static class MyInventory_TransferItemInternal
     {
         const string MethodName = "TransferItemsInternal";
         const BindingFlags Flags = BindingFlags.Static | BindingFlags.NonPublic;

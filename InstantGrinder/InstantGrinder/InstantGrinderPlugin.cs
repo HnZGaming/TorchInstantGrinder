@@ -127,7 +127,7 @@ namespace InstantGrinder
         {
             src.DeconstructStockpile(float.MaxValue, dst);
 
-            var stockpile = src.GetStockpile();
+            var stockpile = src.Value();
             if (stockpile == null) return;
 
             foreach (var item in stockpile.GetItems())

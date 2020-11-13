@@ -5,7 +5,7 @@ using VRage.Game.Entity;
 
 namespace InstantGrinder.Reflections
 {
-    public static class MySlimBlockDeconstructStockpileReflection
+    public static class MySlimBlock_DeconstructStockpile
     {
         const string MethodName = "DeconstructStockpile";
         const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -17,8 +17,9 @@ namespace InstantGrinder.Reflections
             typeof(bool),
         };
 
+        delegate void MethodDelegate(MySlimBlock self, float deconstructAmount, MyInventoryBase outputInventory, bool useDefaultDeconstructEfficiency);
         static readonly MethodInfo Method = typeof(MySlimBlock).GetMethod(MethodName, Flags, null, ParameterTypes, null);
-        static readonly object[] Args = new object[ParameterTypes.Length];
+        static readonly MethodDelegate MethodDelegateInstance = (MethodDelegate) Delegate.CreateDelegate(typeof(MethodDelegate), Method);
 
         public static void DeconstructStockpile(
             this MySlimBlock self,
@@ -26,14 +27,7 @@ namespace InstantGrinder.Reflections
             MyInventoryBase outputInventory,
             bool useDefaultDeconstructEfficiency = false)
         {
-            lock (Args)
-            {
-                Args[0] = deconstructAmount;
-                Args[1] = outputInventory;
-                Args[2] = useDefaultDeconstructEfficiency;
-                Method.Invoke(self, Flags, null, Args, null);
-                Array.Clear(Args, 0, Args.Length);
-            }
+            MethodDelegateInstance(self, deconstructAmount, outputInventory, useDefaultDeconstructEfficiency);
         }
     }
 }
