@@ -6,7 +6,7 @@ using VRage.Game;
 
 namespace InstantGrinder.Reflections
 {
-    public static class MyInventoryAddItemsInternalReflection
+    public static class MyInventory_AddItemsInternal
     {
         const string MethodName = "AddItemsInternal";
         const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -19,23 +19,16 @@ namespace InstantGrinder.Reflections
             typeof(int),
         };
 
+        delegate void MethodDelegate(MyInventory self, MyFixedPoint amount, MyObjectBuilder_PhysicalObject objectBuilder, uint? itemId, int index);
         static readonly MethodInfo Method = typeof(MyInventory).GetMethod(MethodName, Flags, null, ParameterTypes, null);
-        static readonly object[] Args = new object[ParameterTypes.Length];
+        static readonly MethodDelegate MethodDelegateInstance = (MethodDelegate) Delegate.CreateDelegate(typeof(MethodDelegate), Method);
 
         public static void AddItemsInternal(
             this MyInventory self,
             MyObjectBuilder_PhysicalObject objectBuilder,
             MyFixedPoint amount)
         {
-            lock (Args)
-            {
-                Args[0] = amount;
-                Args[1] = objectBuilder;
-                Args[2] = null;
-                Args[3] = -1;
-                Method.Invoke(self, Flags, null, Args, null);
-                Array.Clear(Args, 0, Args.Length);
-            }
+            MethodDelegateInstance(self, amount, objectBuilder, null, -1);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using InstantGrinder.Reflections;
 using NLog;
@@ -92,7 +91,7 @@ namespace InstantGrinder
             }
 
             // limit command inside a safe zone
-            var safeZones = MySessionComponentSafeZones_SafeZones.Field;
+            var safeZones = MySessionComponentSafeZones_SafeZones.Value;
             foreach (var safeZone in safeZones)
             foreach (var grid in gridGroup)
             {
