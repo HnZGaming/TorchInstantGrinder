@@ -17,17 +17,40 @@ namespace InstantGrinder
     {
         const string Cmd_Category = "grind";
         const string Cmd_GrindByName = "name";
-        const string Cmd_GrindByNameAdmin = "name_admin";
+        const string Cmd_Enable = "enable";
+        const string Cmd_Disable = "disable";
         const string Cmd_Help = "help";
         static readonly string HelpSentence = $"See !{Cmd_Category} {Cmd_Help}.";
 
         static readonly Logger Log = LogManager.GetCurrentClassLogger();
         InstantGrinderPlugin Plugin => (InstantGrinderPlugin) Context.Plugin;
 
+        [Command(Cmd_Enable, "Enable plugin.")]
+        [Permission(MyPromoteLevel.Admin)]
+        public void Enable() => this.CatchAndReport(() =>
+        {
+            Plugin.IsEnabled = true;
+            Context.Respond("Enabled Instant Grinder plugin.");
+        });
+
+        [Command(Cmd_Disable, "Disable plugin.")]
+        [Permission(MyPromoteLevel.Admin)]
+        public void Disable() => this.CatchAndReport(() =>
+        {
+            Plugin.IsEnabled = false;
+            Context.Respond("Disabled Instant Grinder plugin.");
+        });
+
         [Command(Cmd_GrindByName, "Grind a grid and transfer components to player's character inventory.")]
         [Permission(MyPromoteLevel.None)]
         public void GrindByName(string gridName) => this.CatchAndReport(() =>
         {
+            if (!Plugin.IsEnabled && Context.Player.PromoteLevel > MyPromoteLevel.None)
+            {
+                Context.Respond("Plugin is disabled.", Color.Red);
+                return;
+            }
+
             var option = new GrindByNameCommandOption(Context.Args);
 
             var player = Context.Player;
@@ -56,7 +79,7 @@ namespace InstantGrinder
                 return;
             }
 
-            if (player.PromoteLevel == MyPromoteLevel.None && 
+            if (player.PromoteLevel == MyPromoteLevel.None &&
                 !Plugin.CanGrind(player.IdentityId, gridGroup))
             {
                 Context.Respond($"Grid found, but not yours: \"{gridName}\". You need to be a \"big owner\". {HelpSentence}", Color.Yellow);

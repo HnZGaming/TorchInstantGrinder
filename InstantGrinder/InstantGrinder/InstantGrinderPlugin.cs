@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Controls;
 using InstantGrinder.Reflections;
 using NLog;
 using Sandbox.Game;
@@ -8,14 +9,35 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.World;
 using Torch;
 using InfluxDb;
+using Torch.API;
+using Torch.API.Plugins;
 using TorchUtils;
 using VRage.Game.Entity;
 
 namespace InstantGrinder
 {
-    public sealed class InstantGrinderPlugin : TorchPluginBase
+    public sealed class InstantGrinderPlugin : TorchPluginBase, IWpfPlugin
     {
         static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
+        Persistent<InstantGrinderConfig> _config;
+        UserControl _userControl;
+
+        public bool IsEnabled
+        {
+            get => _config.Data.Enabled;
+            set => _config.Data.Enabled = value;
+        }
+
+        public override void Init(ITorchBase torch)
+        {
+            base.Init(torch);
+
+            var configFilePath = this.MakeConfigFilePath();
+            _config = Persistent<InstantGrinderConfig>.Load(configFilePath);
+        }
+
+        public UserControl GetControl() => _config.GetOrCreateUserControl(ref _userControl);
 
         public bool TryGetGridGroupByName(string gridName, out MyCubeGrid[] foundGridGroup)
         {
