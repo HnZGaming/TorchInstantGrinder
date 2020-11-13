@@ -150,6 +150,8 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="InstantGrinder\InstantGrinderConfig.cs" />
+        <Compile Include="InstantGrinder\Reflections\MySafeZone_IsOutside.cs" />
+        <Compile Include="InstantGrinder\Reflections\MySessionComponentSafeZones_SafeZones.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="InstantGrinder\InstantGrinderCommandModule.cs" />
         <Compile Include="InstantGrinder\InstantGrinderPlugin.cs" />

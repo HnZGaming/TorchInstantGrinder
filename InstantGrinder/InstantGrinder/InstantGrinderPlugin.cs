@@ -72,17 +72,6 @@ namespace InstantGrinder
             return false;
         }
 
-        public bool CanGrind(long playerId, IEnumerable<MyCubeGrid> gridGroup)
-        {
-            foreach (var grid in gridGroup)
-            {
-                if (!grid.BigOwners.Any()) continue;
-                if (!grid.BigOwners.Contains(playerId)) return false;
-            }
-
-            return true;
-        }
-
         public void GridGridGroup(MyPlayer player, IEnumerable<MyCubeGrid> gridGroup)
         {
             var playerInventory = player.Character.GetInventory();
