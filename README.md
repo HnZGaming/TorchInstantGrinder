@@ -1,5 +1,5 @@
 # TorchInstantGrinder
-Allows players to grind grids instantly with a command.
+Allows players to grind grids instantly and save their time.
 
 ## How To Use
 
@@ -9,15 +9,20 @@ Allows players to grind grids instantly with a command.
 
 ## Features
 
-* Components/items will be "stuffed" into the character inventory.
-* Must be a "big owner" of the target grid.
-* Fool proof.
-* Can't grind a player.
+* Caller will receive all components/items into their character inventory.
+* Caller has to be an owner of the target grid.
 
-## Warnings
+## Notes
 
-* Character inventory will (most likely) exceed the capacity. Dying or disconnecting in that state may cause items to vanish.
-* You can not grind a player.
+* Character inventory will potentially exceed the capacity. Character death will cause those items to vanish.
+* Grinding in a safe zone will be explicitly rejected as a temporary fix for a bug (v1.1.0).
+
+## Feedback
+
+Bug reports and feature requests are appreciated. Any of following will work:
+
+* Submit an issue in this GitHub repository.
+* Post in #plugin in Torch Discord.
 
 ## Dependency
 
