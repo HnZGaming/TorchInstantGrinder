@@ -72,17 +72,6 @@ namespace InstantGrinder
             return false;
         }
 
-        public bool CanGrind(long playerId, IEnumerable<MyCubeGrid> gridGroup)
-        {
-            foreach (var grid in gridGroup)
-            {
-                if (!grid.BigOwners.Any()) continue;
-                if (!grid.BigOwners.Contains(playerId)) return false;
-            }
-
-            return true;
-        }
-
         public void GridGridGroup(MyPlayer player, IEnumerable<MyCubeGrid> gridGroup)
         {
             var playerInventory = player.Character.GetInventory();
@@ -138,7 +127,7 @@ namespace InstantGrinder
         {
             src.DeconstructStockpile(float.MaxValue, dst);
 
-            var stockpile = src.GetStockpile();
+            var stockpile = src.Value();
             if (stockpile == null) return;
 
             foreach (var item in stockpile.GetItems())

@@ -150,14 +150,16 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="InstantGrinder\InstantGrinderConfig.cs" />
+        <Compile Include="InstantGrinder\Reflections\MySafeZone_IsOutside.cs" />
+        <Compile Include="InstantGrinder\Reflections\MySessionComponentSafeZones_SafeZones.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="InstantGrinder\InstantGrinderCommandModule.cs" />
         <Compile Include="InstantGrinder\InstantGrinderPlugin.cs" />
         <Compile Include="InstantGrinder\GrindByNameCommandOption.cs" />
-        <Compile Include="InstantGrinder\Reflections\MyInventoryAddItemsInternalReflection.cs" />
-        <Compile Include="InstantGrinder\Reflections\MyInventoryTransferItemInternalReflection.cs" />
-        <Compile Include="InstantGrinder\Reflections\MySlimBlockDeconstructStockpileReflection.cs" />
-        <Compile Include="InstantGrinder\Reflections\MySlimBlockStockpileReflection.cs" />
+        <Compile Include="InstantGrinder\Reflections\MyInventory_AddItemsInternal.cs" />
+        <Compile Include="InstantGrinder\Reflections\MyInventory_TransferItemInternal.cs" />
+        <Compile Include="InstantGrinder\Reflections\MySlimBlock_DeconstructStockpile.cs" />
+        <Compile Include="InstantGrinder\Reflections\MySlimBlock_Stockpile.cs" />
         <Compile Include="TorchUtils\AbsJsonConverter.cs" />
         <Compile Include="TorchUtils\ActionDisposable.cs" />
         <Compile Include="TorchUtils\CollectionUtils.cs" />

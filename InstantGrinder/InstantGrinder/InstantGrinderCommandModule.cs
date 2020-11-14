@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using InstantGrinder.Reflections;
 using NLog;
 using Sandbox.Game;
 using Sandbox.Game.World;
@@ -45,13 +46,14 @@ namespace InstantGrinder
         [Permission(MyPromoteLevel.None)]
         public void GrindByName(string gridName) => this.CatchAndReport(() =>
         {
+            var option = new GrindByNameCommandOption(Context.Args);
+            Log.Info($"force: {option.Force}, as_player: {option.AsPlayer}");
+
             if (!Plugin.IsEnabled && Context.Player.PromoteLevel > MyPromoteLevel.None)
             {
                 Context.Respond("Plugin is disabled.", Color.Red);
                 return;
             }
-
-            var option = new GrindByNameCommandOption(Context.Args);
 
             var player = Context.Player;
             if (player == null)
@@ -79,11 +81,26 @@ namespace InstantGrinder
                 return;
             }
 
-            if (player.PromoteLevel == MyPromoteLevel.None &&
-                !Plugin.CanGrind(player.IdentityId, gridGroup))
+            if (player.PromoteLevel == MyPromoteLevel.None || option.AsPlayer)
             {
-                Context.Respond($"Grid found, but not yours: \"{gridName}\". You need to be a \"big owner\". {HelpSentence}", Color.Yellow);
-                return;
+                if (!player.OwnsAll(gridGroup))
+                {
+                    Context.Respond($"Grid found, but not yours: \"{gridName}\". You need to be a \"big owner\". {HelpSentence}", Color.Yellow);
+                    return;
+                }
+            }
+
+            // limit command inside a safe zone
+            var safeZones = MySessionComponentSafeZones_SafeZones.Value;
+            foreach (var safeZone in safeZones)
+            foreach (var grid in gridGroup)
+            {
+                var isOutside = safeZone.IsOutside(grid);
+                if (!isOutside) // Colliding with a safe zone
+                {
+                    Context.Respond($"Grid found, but in a safe zone: \"{gridName}\". You need to exit the safe zone. {HelpSentence}", Color.Yellow);
+                    return;
+                }
             }
 
             if (gridGroup.Length > 1 && !option.Force)
@@ -96,7 +113,7 @@ namespace InstantGrinder
                 }
 
                 msgBuilder.AppendLine();
-                msgBuilder.AppendLine($"To proceed, type !{Cmd_Category} {Cmd_GrindByName} \"{gridName}\" {GrindByNameCommandOption.Prefix}{GrindByNameCommandOption.Key_Force}");
+                msgBuilder.AppendLine($"To proceed, type !{Cmd_Category} {Cmd_GrindByName} \"{gridName}\" {GrindByNameCommandOption.ForceOption}");
                 Context.Respond(msgBuilder.ToString(), Color.Yellow);
                 return;
             }

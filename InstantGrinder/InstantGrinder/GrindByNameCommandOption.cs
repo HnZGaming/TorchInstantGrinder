@@ -1,29 +1,32 @@
 ﻿using System.Collections.Generic;
+using TorchUtils;
 
 namespace InstantGrinder
 {
     public sealed class GrindByNameCommandOption
     {
-        public const string Prefix = "--";
-        public const string Key_Force = "force";
+        const string Key_Force = "force";
+        const string Key_PromoteLevelNone = "as_player";
 
         public GrindByNameCommandOption(IEnumerable<string> rawOptions)
         {
             foreach (var rawOption in rawOptions)
             {
-                if (!rawOption.StartsWith(Prefix)) continue;
-                var optionKey = rawOption.Substring(2);
-                switch (optionKey)
+                if (!CommandOption.TryGetOption(rawOption, out var option)) continue;
+
+                if (option.IsParameterless(Key_Force))
                 {
-                    case Key_Force:
-                    {
-                        Force = true;
-                        continue;
-                    }
+                    Force = true;
+                }
+                else if (option.IsParameterless(Key_PromoteLevelNone))
+                {
+                    AsPlayer = true;
                 }
             }
         }
 
+        public static string ForceOption => $"{CommandOption.Prefix}{Key_Force}";
         public bool Force { get; }
+        public bool AsPlayer { get; }
     }
 }
