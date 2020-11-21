@@ -6,7 +6,7 @@ namespace InstantGrinder
 {
     public sealed class InstantGrinderConfig : ViewModel
     {
-        bool _enabled;
+        bool _enabled = true;
 
         [XmlElement("Enabled")]
         [Display(Order = 0, Name = "Enabled")]

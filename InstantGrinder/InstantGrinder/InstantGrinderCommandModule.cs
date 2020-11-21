@@ -121,12 +121,19 @@ namespace InstantGrinder
             Plugin.GridGridGroup((MyPlayer) player, gridGroup);
 
             Context.Respond($"Finished grinding: \"{gridName}\"", Color.White);
-
             var playerInventory = (MyInventory) player.Character.GetInventory();
-            if (playerInventory.CurrentMass > playerInventory.MaxMass ||
-                playerInventory.CurrentVolume > playerInventory.MaxVolume)
+            if ((playerInventory.CurrentMass > playerInventory.MaxMass ||
+                playerInventory.CurrentVolume > playerInventory.MaxVolume) && !Plugin.GridInventoryIsEmpty)
             {
-                Context.Respond("Your character inventory is more than full. Store your items as soon as possible. Your items may be deleted anytime.", Color.Yellow);
+                Context.Respond("Your character inventory is full. Your Grid has some more items in cargos! When your character inventory is empty! run the grind command again.", Color.Yellow);
+            }
+            else if (Plugin.GridWasGrinded)
+            {
+                Context.Respond("Your character inventory is full. Store your items as soon as possible. Your grid is now in your backpack!", Color.Yellow);
+            }
+            else if (Plugin.GridInventoryIsEmpty && playerInventory.GetItemsCount() >= 20 && !Plugin.GridWasGrinded)
+            {
+                Context.Respond("Your character inventory needs to be empty before grinding your grid. Store your items in other cargo. then run the command again, when you are ready.", Color.Yellow);
             }
         });
 
