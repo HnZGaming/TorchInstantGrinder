@@ -72,7 +72,27 @@ namespace InstantGrinder
             return false;
         }
 
-        public void GridGridGroup(MyPlayer player, IEnumerable<MyCubeGrid> gridGroup)
+        public void GrindGridGroup(IEnumerable<MyCubeGrid> gridGroup)
+        {
+            var blocks = gridGroup.SelectMany(g => g.CubeBlocks).ToArray();
+            foreach (var block in blocks)
+            {
+                GrindBlock(block);
+            }
+            
+            // report
+            // TODO Use ORM
+            InfluxDbPointFactory
+                .Measurement("instant_grinder")
+                .Tag("player_name", "<Server>")
+                .Tag("steam_id", "0")
+                .Field("exec_count", 1)
+                .Field("grid_count", gridGroup.Count())
+                .Field("block_count", blocks.Length)
+                .Write();
+        }
+
+        public void GrindGridGroup(MyPlayer player, IEnumerable<MyCubeGrid> gridGroup)
         {
             var playerInventory = player.Character.GetInventory();
             var blocks = gridGroup.SelectMany(g => g.CubeBlocks).ToArray();
@@ -136,6 +156,11 @@ namespace InstantGrinder
             }
 
             src.CubeGrid.RazeBlock(src.Min);
+        }
+
+        void GrindBlock(MySlimBlock block)
+        {
+            block.CubeGrid.RazeBlock(block.Min);
         }
     }
 }
