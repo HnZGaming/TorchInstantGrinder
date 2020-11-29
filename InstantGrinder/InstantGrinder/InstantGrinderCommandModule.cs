@@ -7,7 +7,7 @@ using Sandbox.Game.World;
 using Torch.API.Managers;
 using Torch.Commands;
 using Torch.Commands.Permissions;
-using TorchUtils;
+using Utils.Torch;
 using VRage.Game.ModAPI;
 using VRageMath;
 

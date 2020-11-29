@@ -11,7 +11,7 @@ using Torch;
 using InfluxDb;
 using Torch.API;
 using Torch.API.Plugins;
-using TorchUtils;
+using Utils.Torch;
 using VRage.Game.Entity;
 
 namespace InstantGrinder

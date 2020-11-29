@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using TorchUtils;
+using Utils.Torch;
 
 namespace InstantGrinder
 {
