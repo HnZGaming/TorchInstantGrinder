@@ -8,7 +8,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.World;
 using Torch;
-using InfluxDb;
+using InfluxDb.Torch;
 using Torch.API;
 using Torch.API.Plugins;
 using Utils.Torch;
@@ -79,10 +79,10 @@ namespace InstantGrinder
             {
                 GrindBlock(block);
             }
-            
+
             // report
             // TODO Use ORM
-            InfluxDbPointFactory
+            TorchInfluxDbWriter
                 .Measurement("instant_grinder")
                 .Tag("player_name", "<Server>")
                 .Tag("steam_id", "0")
@@ -115,7 +115,7 @@ namespace InstantGrinder
             playerInventory.Refresh();
 
             // report
-            InfluxDbPointFactory
+            TorchInfluxDbWriter
                 .Measurement("instant_grinder")
                 .Tag("player_name", player.DisplayName)
                 .Tag("steam_id", $"{player.SteamId()}")
