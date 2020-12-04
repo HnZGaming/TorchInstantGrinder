@@ -31,9 +31,14 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="TorchInfluxDb">
-            <HintPath>$(SolutionDir)\..\TorchInfluxDb\TorchInfluxDb\bin\Release\TorchInfluxDb.dll</HintPath>
+        <Reference Include="InfluxDb.Torch">
+            <HintPath>$(SolutionDir)\extern\InfluxDb.Torch.dll</HintPath>
         </Reference>
+        <Reference Include="InfluxDb.Client">
+            <HintPath>$(SolutionDir)\extern\InfluxDb.Client.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
         <Reference Include="NLog">
             <HintPath>$(SolutionDir)\TorchBinaries\NLog.dll</HintPath>
         </Reference>
@@ -136,6 +141,8 @@
         <Reference Include="SpaceEngineers.ObjectBuilders.XmlSerializers">
             <HintPath>$(SolutionDir)\GameBinaries\SpaceEngineers.ObjectBuilders.XmlSerializers.dll</HintPath>
         </Reference>
+    </ItemGroup>
+    <ItemGroup>
         <Reference Include="WindowsBase" />
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
@@ -160,23 +167,32 @@
         <Compile Include="InstantGrinder\Reflections\MyInventory_TransferItemInternal.cs" />
         <Compile Include="InstantGrinder\Reflections\MySlimBlock_DeconstructStockpile.cs" />
         <Compile Include="InstantGrinder\Reflections\MySlimBlock_Stockpile.cs" />
-        <Compile Include="TorchUtils\AbsJsonConverter.cs" />
-        <Compile Include="TorchUtils\ActionDisposable.cs" />
-        <Compile Include="TorchUtils\CollectionUtils.cs" />
-        <Compile Include="TorchUtils\CommandErrorResponseGenerator.cs" />
-        <Compile Include="TorchUtils\CommandOption.cs" />
-        <Compile Include="TorchUtils\DebugUtils.cs" />
-        <Compile Include="TorchUtils\DisposableCollection.cs" />
-        <Compile Include="TorchUtils\DisposableUtils.cs" />
-        <Compile Include="TorchUtils\StringFloatConverter.cs" />
-        <Compile Include="TorchUtils\TaskUtils.cs" />
-        <Compile Include="TorchUtils\ThreadPoolTask.cs" />
-        <Compile Include="TorchUtils\ThreadSafeThrottle.cs" />
-        <Compile Include="TorchUtils\TorchPluginUtils.cs" />
-        <Compile Include="TorchUtils\TorchUtils.cs" />
-        <Compile Include="TorchUtils\ViewUtils.cs" />
-        <Compile Include="TorchUtils\VRageUtils.cs" />
-        <Compile Include="TorchUtils\XmlUtils.cs" />
+        <Compile Include="Utils.General\AbsJsonConverter.cs" />
+        <Compile Include="Utils.General\ActionDisposable.cs" />
+        <Compile Include="Utils.General\ActionQueue.cs" />
+        <Compile Include="Utils.General\CollectionUtils.cs" />
+        <Compile Include="Utils.General\DebugUtils.cs" />
+        <Compile Include="Utils.General\DeprecationObserver.cs" />
+        <Compile Include="Utils.General\DisposableCollection.cs" />
+        <Compile Include="Utils.General\DisposableUtils.cs" />
+        <Compile Include="Utils.General\LangUtils.cs" />
+        <Compile Include="Utils.General\MathUtils.cs" />
+        <Compile Include="Utils.General\ObjectPool.cs" />
+        <Compile Include="Utils.General\PersistencyObserver.cs" />
+        <Compile Include="Utils.General\ReflectionUtils.cs" />
+        <Compile Include="Utils.General\StringFloatConverter.cs" />
+        <Compile Include="Utils.General\StupidDb.cs" />
+        <Compile Include="Utils.General\TaskUtils.cs" />
+        <Compile Include="Utils.General\ThreadSafeThrottle.cs" />
+        <Compile Include="Utils.Torch\CommandErrorResponseGenerator.cs" />
+        <Compile Include="Utils.Torch\CommandOption.cs" />
+        <Compile Include="Utils.Torch\GameLoopObserver.cs" />
+        <Compile Include="Utils.Torch\GameLoopObserverManager.cs" />
+        <Compile Include="Utils.Torch\TorchPluginUtils.cs" />
+        <Compile Include="Utils.Torch\TorchUtils.cs" />
+        <Compile Include="Utils.Torch\ViewUtils.cs" />
+        <Compile Include="Utils.Torch\VRageUtils.cs" />
+        <Compile Include="Utils.Torch\XmlUtils.cs" />
     </ItemGroup>
     <ItemGroup>
       <Content Include="manifest.xml" />

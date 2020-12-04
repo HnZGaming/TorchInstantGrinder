@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace TorchUtils
+namespace Utils.Torch
 {
     internal class CommandOption
     {
@@ -44,6 +44,18 @@ namespace TorchUtils
             return false;
         }
 
+        public bool TryParseInt(string key, out int value)
+        {
+            value = 0;
+            return TryParse(key, out var str) && int.TryParse(str, out value);
+        }
+
+        public bool TryParseDouble(string key, out double value)
+        {
+            value = 0d;
+            return TryParse(key, out var str) && double.TryParse(str, out value);
+        }
+
         public bool IsParameterless(string key)
         {
             var match = _parameterlessOptionRegex.Match(_arg);
@@ -51,6 +63,19 @@ namespace TorchUtils
 
             var keyStr = match.Groups[1].Value;
             return keyStr == key;
+        }
+
+        public bool IsParameterless(string key, out bool exists)
+        {
+            exists = false;
+            var match = _parameterlessOptionRegex.Match(_arg);
+            if (!match.Success) return false;
+
+            var keyStr = match.Groups[1].Value;
+            if (keyStr != key) return false;
+
+            exists = true;
+            return true;
         }
     }
 }

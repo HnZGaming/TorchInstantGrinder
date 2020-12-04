@@ -7,7 +7,7 @@ using Sandbox.Game.World;
 using Torch.API.Managers;
 using Torch.Commands;
 using Torch.Commands.Permissions;
-using TorchUtils;
+using Utils.Torch;
 using VRage.Game.ModAPI;
 using VRageMath;
 
@@ -49,23 +49,20 @@ namespace InstantGrinder
             var option = new GrindByNameCommandOption(Context.Args);
             Log.Info($"force: {option.Force}, as_player: {option.AsPlayer}");
 
-            if (!Plugin.IsEnabled && Context.Player.PromoteLevel > MyPromoteLevel.None)
+            if (!Plugin.IsEnabled)
             {
                 Context.Respond("Plugin is disabled.", Color.Red);
                 return;
             }
 
             var player = Context.Player;
-            if (player == null)
-            {
-                throw new Exception("Can only be called by a player");
-            }
 
+            // "Grind player"
             if (!Plugin.TryGetGridGroupByName(gridName, out var gridGroup))
             {
                 if (Plugin.TryGetPlayerByName(gridName, out var foundPlayer))
                 {
-                    var myPlayerName = Context.Player.DisplayName;
+                    var myPlayerName = player?.DisplayName ?? "<Server>";
                     var msgBuilder = new StringBuilder();
                     msgBuilder.AppendLine("WARNING!!");
                     msgBuilder.AppendLine($"{myPlayerName} tried to grind you! xD");
@@ -81,7 +78,8 @@ namespace InstantGrinder
                 return;
             }
 
-            if (player.PromoteLevel == MyPromoteLevel.None || option.AsPlayer)
+            // Check ownership
+            if (option.AsPlayer || player?.PromoteLevel == MyPromoteLevel.None)
             {
                 if (!player.OwnsAll(gridGroup))
                 {
@@ -90,7 +88,7 @@ namespace InstantGrinder
                 }
             }
 
-            // limit command inside a safe zone
+            // Check safe zones
             var safeZones = MySessionComponentSafeZones_SafeZones.Value;
             foreach (var safeZone in safeZones)
             foreach (var grid in gridGroup)
@@ -103,6 +101,7 @@ namespace InstantGrinder
                 }
             }
 
+            // Fool-proof for when multiple grids would be ground down
             if (gridGroup.Length > 1 && !option.Force)
             {
                 var msgBuilder = new StringBuilder();
@@ -118,15 +117,26 @@ namespace InstantGrinder
                 return;
             }
 
-            Plugin.GridGridGroup((MyPlayer) player, gridGroup);
+            if (player == null)
+            {
+                Plugin.GrindGridGroup(gridGroup);
+            }
+            else
+            {
+                Plugin.GrindGridGroup((MyPlayer) player, gridGroup);
+            }
 
             Context.Respond($"Finished grinding: \"{gridName}\"", Color.White);
 
-            var playerInventory = (MyInventory) player.Character.GetInventory();
-            if (playerInventory.CurrentMass > playerInventory.MaxMass ||
-                playerInventory.CurrentVolume > playerInventory.MaxVolume)
+            // Warn inventory maxed out
+            if (player != null)
             {
-                Context.Respond("Your character inventory is more than full. Store your items as soon as possible. Your items may be deleted anytime.", Color.Yellow);
+                var playerInventory = (MyInventory) player.Character.GetInventory();
+                if (playerInventory.CurrentMass > playerInventory.MaxMass ||
+                    playerInventory.CurrentVolume > playerInventory.MaxVolume)
+                {
+                    Context.Respond("Your character inventory is more than full. Store your items as soon as possible. Your items may be deleted anytime.", Color.Yellow);
+                }
             }
         });
 

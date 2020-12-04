@@ -2,12 +2,12 @@
 using System.IO;
 using System.Windows.Controls;
 using Torch;
-using Torch.Session;
 using Torch.API.Managers;
 using Torch.API.Session;
+using Torch.Session;
 using Torch.Views;
 
-namespace TorchUtils
+namespace Utils.Torch
 {
     internal static class TorchPluginUtils
     {
@@ -25,7 +25,12 @@ namespace TorchUtils
 
         public static string MakeConfigFilePath(this TorchPluginBase self)
         {
-            return Path.Combine(self.StoragePath, $"{self.GetType().Name}.cfg");
+            return self.MakeFilePath($"{self.GetType().Name}.cfg");
+        }
+
+        public static string MakeFilePath(this TorchPluginBase self, string relativeFilePath)
+        {
+            return Path.Combine(self.StoragePath, relativeFilePath);
         }
 
         public static void ListenOnGameLoaded(this TorchPluginBase self, Action f)
