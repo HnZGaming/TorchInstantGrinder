@@ -31,14 +31,6 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="InfluxDb.Torch">
-            <HintPath>$(SolutionDir)\extern\InfluxDb.Torch.dll</HintPath>
-        </Reference>
-        <Reference Include="InfluxDb.Client">
-            <HintPath>$(SolutionDir)\extern\InfluxDb.Client.dll</HintPath>
-        </Reference>
-    </ItemGroup>
-    <ItemGroup>
         <Reference Include="NLog">
             <HintPath>$(SolutionDir)\TorchBinaries\NLog.dll</HintPath>
         </Reference>
