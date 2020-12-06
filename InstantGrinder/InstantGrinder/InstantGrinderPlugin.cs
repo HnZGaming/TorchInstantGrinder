@@ -92,6 +92,28 @@ namespace InstantGrinder
                 .Write();
         }
 
+        public bool ValidateInventoryItemCount(IEnumerable<MyCubeGrid> gridGroup, out int itemCount)
+        {
+            var itemIds = new HashSet<uint>();
+            var blocks = gridGroup.SelectMany(g => g.CubeBlocks).ToArray();
+            foreach (var block in blocks)
+            {
+                if (!(block.FatBlock is MyCubeBlock fatBlock)) continue;
+
+                for (var i = 0; i < fatBlock.InventoryCount; i++)
+                {
+                    var inventory = fatBlock.GetInventory(i);
+                    foreach (var item in inventory.GetItems())
+                    {
+                        itemIds.Add(item.ItemId);
+                    }
+                }
+            }
+
+            itemCount = itemIds.Count;
+            return itemCount < 50;
+        }
+
         public void GrindGridGroup(MyPlayer player, IEnumerable<MyCubeGrid> gridGroup)
         {
             var playerInventory = player.Character.GetInventory();
