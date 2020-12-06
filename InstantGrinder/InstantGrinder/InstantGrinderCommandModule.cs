@@ -7,6 +7,7 @@ using Sandbox.Game.World;
 using Torch.API.Managers;
 using Torch.Commands;
 using Torch.Commands.Permissions;
+using Utils.General;
 using Utils.Torch;
 using VRage.Game.ModAPI;
 using VRageMath;
@@ -153,7 +154,9 @@ namespace InstantGrinder
         void SendMessageToPlayer(MyPlayer player, Color color, string message)
         {
             var chat = Plugin.Torch.Managers.GetManager<IChatManagerServer>();
-            chat.SendMessageAsOther(null, message, color, player.SteamId());
+            chat.ThrowIfNull(nameof(IChatManagerServer));
+
+            chat.SendMessageAsOther("Server", message, color, player.SteamId());
         }
 
         [Command(Cmd_Help, "Show help.")]
