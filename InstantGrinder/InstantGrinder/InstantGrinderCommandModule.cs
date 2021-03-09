@@ -7,6 +7,7 @@ using Sandbox.Game.World;
 using Torch.API.Managers;
 using Torch.Commands;
 using Torch.Commands.Permissions;
+using Utils.General;
 using Utils.Torch;
 using VRage.Game.ModAPI;
 using VRageMath;
@@ -102,7 +103,7 @@ namespace InstantGrinder
             }
 
             // Fool-proof for when multiple grids would be ground down
-            if (gridGroup.Length > 1 && !option.Force)
+            if (!option.Force && gridGroup.Length > 1)
             {
                 var msgBuilder = new StringBuilder();
                 msgBuilder.AppendLine("Multiple grids found:");
@@ -112,7 +113,17 @@ namespace InstantGrinder
                 }
 
                 msgBuilder.AppendLine();
-                msgBuilder.AppendLine($"To proceed, type !{Cmd_Category} {Cmd_GrindByName} \"{gridName}\" {GrindByNameCommandOption.ForceOption}");
+                msgBuilder.AppendLine($"To proceed, run the command with {GrindByNameCommandOption.ForceOption}");
+                Context.Respond(msgBuilder.ToString(), Color.Yellow);
+                return;
+            }
+
+            if (!option.Force && !Plugin.ValidateInventoryItemCount(gridGroup, out var itemCount))
+            {
+                var msgBuilder = new StringBuilder();
+                msgBuilder.AppendLine($"Too many items found in this grid's inventories: {itemCount}.");
+                msgBuilder.AppendLine("Some of your items can get lost if proceeded to grind this grid.");
+                msgBuilder.AppendLine($"To proceed, run the command with {GrindByNameCommandOption.ForceOption}");
                 Context.Respond(msgBuilder.ToString(), Color.Yellow);
                 return;
             }
@@ -143,7 +154,9 @@ namespace InstantGrinder
         void SendMessageToPlayer(MyPlayer player, Color color, string message)
         {
             var chat = Plugin.Torch.Managers.GetManager<IChatManagerServer>();
-            chat.SendMessageAsOther(null, message, color, player.SteamId());
+            chat.ThrowIfNull(nameof(IChatManagerServer));
+
+            chat.SendMessageAsOther("Server", message, color, player.SteamId());
         }
 
         [Command(Cmd_Help, "Show help.")]

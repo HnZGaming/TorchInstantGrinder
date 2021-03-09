@@ -8,7 +8,6 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.World;
 using Torch;
-using InfluxDb.Torch;
 using Torch.API;
 using Torch.API.Plugins;
 using Utils.Torch;
@@ -79,17 +78,28 @@ namespace InstantGrinder
             {
                 GrindBlock(block);
             }
+        }
 
-            // report
-            // TODO Use ORM
-            TorchInfluxDbWriter
-                .Measurement("instant_grinder")
-                .Tag("player_name", "<Server>")
-                .Tag("steam_id", "0")
-                .Field("exec_count", 1)
-                .Field("grid_count", gridGroup.Count())
-                .Field("block_count", blocks.Length)
-                .Write();
+        public bool ValidateInventoryItemCount(IEnumerable<MyCubeGrid> gridGroup, out int itemCount)
+        {
+            var itemIds = new HashSet<uint>();
+            var blocks = gridGroup.SelectMany(g => g.CubeBlocks).ToArray();
+            foreach (var block in blocks)
+            {
+                if (!(block.FatBlock is MyCubeBlock fatBlock)) continue;
+
+                for (var i = 0; i < fatBlock.InventoryCount; i++)
+                {
+                    var inventory = fatBlock.GetInventory(i);
+                    foreach (var item in inventory.GetItems())
+                    {
+                        itemIds.Add(item.ItemId);
+                    }
+                }
+            }
+
+            itemCount = itemIds.Count;
+            return itemCount < 50;
         }
 
         public void GrindGridGroup(MyPlayer player, IEnumerable<MyCubeGrid> gridGroup)
@@ -113,16 +123,6 @@ namespace InstantGrinder
             }
 
             playerInventory.Refresh();
-
-            // report
-            TorchInfluxDbWriter
-                .Measurement("instant_grinder")
-                .Tag("player_name", player.DisplayName)
-                .Tag("steam_id", $"{player.SteamId()}")
-                .Field("exec_count", 1)
-                .Field("grid_count", gridGroup.Count())
-                .Field("block_count", blocks.Length)
-                .Write();
         }
 
         void CopyItems(MyEntity src, MyInventory dst)
