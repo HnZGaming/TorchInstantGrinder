@@ -151,17 +151,17 @@
         <Reference Include="PresentationFramework" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="InstantGrinder.Patches\MyInventory_AddItemsInternal.cs" />
+        <Compile Include="InstantGrinder.Patches\MyInventory_TransferItemInternal.cs" />
+        <Compile Include="InstantGrinder.Patches\MySafeZone_IsOutside.cs" />
+        <Compile Include="InstantGrinder.Patches\MySessionComponentSafeZones_SafeZones.cs" />
+        <Compile Include="InstantGrinder.Patches\MySlimBlock_DeconstructStockpile.cs" />
+        <Compile Include="InstantGrinder.Patches\MySlimBlock_Stockpile.cs" />
         <Compile Include="InstantGrinder\InstantGrinderConfig.cs" />
-        <Compile Include="InstantGrinder\Reflections\MySafeZone_IsOutside.cs" />
-        <Compile Include="InstantGrinder\Reflections\MySessionComponentSafeZones_SafeZones.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="InstantGrinder\InstantGrinderCommandModule.cs" />
         <Compile Include="InstantGrinder\InstantGrinderPlugin.cs" />
         <Compile Include="InstantGrinder\GrindByNameCommandOption.cs" />
-        <Compile Include="InstantGrinder\Reflections\MyInventory_AddItemsInternal.cs" />
-        <Compile Include="InstantGrinder\Reflections\MyInventory_TransferItemInternal.cs" />
-        <Compile Include="InstantGrinder\Reflections\MySlimBlock_DeconstructStockpile.cs" />
-        <Compile Include="InstantGrinder\Reflections\MySlimBlock_Stockpile.cs" />
     </ItemGroup>
     <ItemGroup>
       <Content Include="manifest.xml" />

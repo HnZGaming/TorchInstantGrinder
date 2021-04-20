@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
-using InstantGrinder.Reflections;
+using InstantGrinder.Patches;
 using NLog;
 using Sandbox.Game;
 using Sandbox.Game.Entities;

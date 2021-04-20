@@ -3,7 +3,7 @@ using System.Reflection;
 using Sandbox.Game.Entities.Cube;
 using VRage.Game.Entity;
 
-namespace InstantGrinder.Reflections
+namespace InstantGrinder.Patches
 {
     public static class MySlimBlock_DeconstructStockpile
     {
