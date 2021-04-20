@@ -2,7 +2,6 @@
 using Sandbox.Game.World;
 using Torch.Commands;
 using Torch.Commands.Permissions;
-using Utils.General;
 using Utils.Torch;
 using VRage.Game.ModAPI;
 
@@ -30,19 +29,20 @@ namespace InstantGrinder
             this.ShowCommands();
         }
 
-        [Command("name", " transfer components to character inventory.")]
+        [Command("name", "Grind a grid by name.")]
         [Permission(MyPromoteLevel.None)]
         public void GrindByName(string gridName, bool force = false, bool asPlayer = false) => this.CatchAndReport(() =>
         {
-            if (!Config.Enabled)
-            {
-                throw new UserFacingException("Plugin not active");
-            }
-
-            var player = Context.Player as MyPlayer;
-
-            Grinder.GrindGridByName(player, gridName, force, asPlayer);
+            Grinder.GrindGridByName(Context.Player as MyPlayer, gridName, force, asPlayer);
             Context.Respond($"Finished grinding grid: {gridName}");
+        });
+
+        [Command("this", "Grind a grid that the player is looking at or seated on.")]
+        [Permission(MyPromoteLevel.None)]
+        public void GrindThis(bool force = false, bool asPlayer = false) => this.CatchAndReport(() =>
+        {
+            Grinder.GrindGridSelected(Context.Player as MyPlayer, force, asPlayer);
+            Context.Respond("Finished grinding grid");
         });
     }
 }

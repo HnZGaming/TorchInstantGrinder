@@ -152,6 +152,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="InstantGrinder.Core\InstantGrinder.cs" />
+        <Compile Include="InstantGrinder.Core\InstantGrinderException.cs" />
         <Compile Include="InstantGrinder.Core\Utils.cs" />
         <Compile Include="InstantGrinder.Patches\MyInventory_AddItemsInternal.cs" />
         <Compile Include="InstantGrinder.Patches\MyInventory_TransferItemInternal.cs" />
