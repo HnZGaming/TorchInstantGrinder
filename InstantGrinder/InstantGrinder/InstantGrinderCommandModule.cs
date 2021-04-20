@@ -14,43 +14,34 @@ using VRageMath;
 
 namespace InstantGrinder
 {
-    [Category(Cmd_Category)]
+    [Category("grind")]
     public sealed class InstantGrinderCommandModule : CommandModule
     {
-        const string Cmd_Category = "grind";
-        const string Cmd_GrindByName = "name";
-        const string Cmd_Enable = "enable";
-        const string Cmd_Disable = "disable";
-        const string Cmd_Help = "help";
-        static readonly string HelpSentence = $"See !{Cmd_Category} {Cmd_Help}.";
-
         static readonly Logger Log = LogManager.GetCurrentClassLogger();
         InstantGrinderPlugin Plugin => (InstantGrinderPlugin) Context.Plugin;
 
-        [Command(Cmd_Enable, "Enable plugin.")]
-        [Permission(MyPromoteLevel.Admin)]
-        public void Enable() => this.CatchAndReport(() =>
+        [Command("configs", "List of configs.")]
+        [Permission(MyPromoteLevel.None)]
+        public void Configs()
         {
-            Plugin.IsEnabled = true;
-            Context.Respond("Enabled Instant Grinder plugin.");
-        });
+            this.GetOrSetProperty(Plugin.Config);
+        }
 
-        [Command(Cmd_Disable, "Disable plugin.")]
-        [Permission(MyPromoteLevel.Admin)]
-        public void Disable() => this.CatchAndReport(() =>
+        [Command("commands", "List of commands.")]
+        [Permission(MyPromoteLevel.None)]
+        public void Commands()
         {
-            Plugin.IsEnabled = false;
-            Context.Respond("Disabled Instant Grinder plugin.");
-        });
+            this.ShowCommands();
+        }
 
-        [Command(Cmd_GrindByName, "Grind a grid and transfer components to player's character inventory.")]
+        [Command("name", "Grind a grid and transfer components to player's character inventory.")]
         [Permission(MyPromoteLevel.None)]
         public void GrindByName(string gridName) => this.CatchAndReport(() =>
         {
             var option = new GrindByNameCommandOption(Context.Args);
             Log.Info($"force: {option.Force}, as_player: {option.AsPlayer}");
 
-            if (!Plugin.IsEnabled)
+            if (!Plugin.Config.Enabled)
             {
                 Context.Respond("Plugin is disabled.", Color.Red);
                 return;
@@ -75,7 +66,7 @@ namespace InstantGrinder
                     return;
                 }
 
-                Context.Respond($"Grid not found by name: \"{gridName}\". Try double quotes (\"foo bar\"). {HelpSentence}", Color.Yellow);
+                Context.Respond($"Grid not found by name: \"{gridName}\". Try double quotes (\"foo bar\").", Color.Yellow);
                 return;
             }
 
@@ -84,7 +75,7 @@ namespace InstantGrinder
             {
                 if (!player.OwnsAll(gridGroup))
                 {
-                    Context.Respond($"Grid found, but not yours: \"{gridName}\". You need to be a \"big owner\". {HelpSentence}", Color.Yellow);
+                    Context.Respond($"Grid found, but not yours: \"{gridName}\". You need to be a \"big owner\".", Color.Yellow);
                     return;
                 }
             }
@@ -97,7 +88,7 @@ namespace InstantGrinder
                 var isOutside = safeZone.IsOutside(grid);
                 if (!isOutside) // Colliding with a safe zone
                 {
-                    Context.Respond($"Grid found, but in a safe zone: \"{gridName}\". You need to exit the safe zone. {HelpSentence}", Color.Yellow);
+                    Context.Respond($"Grid found, but in a safe zone: \"{gridName}\". You need to exit the safe zone.", Color.Yellow);
                     return;
                 }
             }
@@ -157,24 +148,6 @@ namespace InstantGrinder
             chat.ThrowIfNull(nameof(IChatManagerServer));
 
             chat.SendMessageAsOther("Server", message, color, player.SteamId());
-        }
-
-        [Command(Cmd_Help, "Show help.")]
-        [Permission(MyPromoteLevel.None)]
-        public void Help()
-        {
-            var msgBuilder = new StringBuilder();
-            msgBuilder.AppendLine("Command list:");
-
-            var commands = Context.Torch.GetPluginCommands(Cmd_Category, Context.Player?.PromoteLevel);
-            foreach (var command in commands)
-            {
-                msgBuilder.AppendLine();
-                msgBuilder.AppendLine($"{command.SyntaxHelp}");
-                msgBuilder.AppendLine($" -- {command.HelpText}");
-            }
-
-            Context.Respond(msgBuilder.ToString());
         }
     }
 }

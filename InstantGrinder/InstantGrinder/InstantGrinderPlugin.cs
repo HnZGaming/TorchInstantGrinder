@@ -22,11 +22,7 @@ namespace InstantGrinder
         Persistent<InstantGrinderConfig> _config;
         UserControl _userControl;
 
-        public bool IsEnabled
-        {
-            get => _config.Data.Enabled;
-            set => _config.Data.Enabled = value;
-        }
+        public InstantGrinderConfig Config => _config.Data;
 
         public override void Init(ITorchBase torch)
         {

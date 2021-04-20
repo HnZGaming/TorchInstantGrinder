@@ -8,19 +8,12 @@ namespace InstantGrinder
     {
         bool _enabled;
 
-        [XmlElement("Enabled")]
+        [XmlElement]
         [Display(Order = 0, Name = "Enabled")]
         public bool Enabled
         {
             get => _enabled;
-            set => SetProperty(ref _enabled, value);
-        }
-
-        // ReSharper disable once RedundantAssignment
-        void SetProperty<T>(ref T property, T value)
-        {
-            property = value;
-            OnPropertyChanged();
+            set => SetValue(ref _enabled, value);
         }
     }
 }
