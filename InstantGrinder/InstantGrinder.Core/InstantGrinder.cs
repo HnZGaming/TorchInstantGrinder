@@ -6,6 +6,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.World;
 using Utils.General;
 using Utils.Torch;
+using VRage.Game.ModAPI;
 using VRageMath;
 
 namespace InstantGrinder.Core
@@ -14,6 +15,7 @@ namespace InstantGrinder.Core
     {
         public interface IConfig
         {
+            bool Enabled { get; }
             double MaxDistance { get; }
         }
 
@@ -26,32 +28,66 @@ namespace InstantGrinder.Core
 
         public void GrindGridByName(MyPlayer playerOrNull, string gridName, bool force, bool asPlayer)
         {
+            if (!_config.Enabled)
+            {
+                throw new UserFacingException("Plugin not active");
+            }
+
             if (!Utils.TryGetGridGroupByName(gridName, out var gridGroup))
             {
                 throw new UserFacingException($"Not found: {gridName}");
             }
 
+            GrindGrids(playerOrNull, gridGroup, force, asPlayer);
+        }
+
+        public void GrindGridSelected(MyPlayer playerOrNull, bool force, bool asPlayer)
+        {
+            if (!_config.Enabled)
+            {
+                throw new UserFacingException("Plugin not active");
+            }
+
+            if (playerOrNull == null)
+            {
+                throw new UserFacingException("Character required");
+            }
+
+            if (!playerOrNull.TryGetSelectedGrid(out var grid))
+            {
+                throw new UserFacingException("Not found");
+            }
+
+            var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(grid);
+            var grids = gridGroup.Nodes.Select(n => n.NodeData).ToArray();
+            GrindGrids(playerOrNull, grids, force, asPlayer);
+        }
+
+        void GrindGrids(IMyPlayer playerOrNull, IReadOnlyList<MyCubeGrid> gridGroup, bool force, bool asPlayer)
+        {
             // don't let non-owners grind a grid
             var isNormalPlayer = playerOrNull?.IsNormalPlayer() ?? false;
             isNormalPlayer |= asPlayer; // pretend like a normal player as an admin
             if (isNormalPlayer && !playerOrNull.OwnsAll(gridGroup))
             {
-                throw new UserFacingException($"Not yours: {gridName}");
+                throw new UserFacingException("Not yours");
             }
 
-            foreach (var safeZone in MySessionComponentSafeZones_SafeZones.Value)
             foreach (var grid in gridGroup)
             {
                 // don't grind inside a safe zone (because it doesn't work)
-                if (!safeZone.IsOutside(grid))
+                foreach (var safeZone in MySessionComponentSafeZones_SafeZones.Value)
                 {
-                    throw new UserFacingException($"In a safe zone: {gridName}");
+                    if (!safeZone.IsOutside(grid))
+                    {
+                        throw new UserFacingException($"In a safe zone: {grid.DisplayName}");
+                    }
                 }
 
                 // projector doesn't work either
                 if (grid.Physics == null)
                 {
-                    throw new UserFacingException($"Projected grid: {gridName}");
+                    throw new UserFacingException($"Projected grid: {grid.DisplayName}");
                 }
 
                 // distance filter
@@ -62,13 +98,13 @@ namespace InstantGrinder.Core
                     var distance = Vector3D.Distance(gridPosition, playerPosition);
                     if (distance > _config.MaxDistance)
                     {
-                        throw new UserFacingException($"Too far: {gridName}");
+                        throw new UserFacingException($"Too far: {grid.DisplayName}");
                     }
                 }
             }
 
             // don't grind multiple grids at once, unless specified
-            if (gridGroup.Length > 1 && !force)
+            if (gridGroup.Count > 1 && !force)
             {
                 var msgBuilder = new StringBuilder();
                 msgBuilder.AppendLine("Multiple grids found:");
