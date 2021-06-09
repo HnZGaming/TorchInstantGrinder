@@ -39,13 +39,31 @@ namespace InstantGrinder.Core
                 throw new UserFacingException($"Not yours: {gridName}");
             }
 
-            // don't grind inside a safe zone (because it doesn't work)
             foreach (var safeZone in MySessionComponentSafeZones_SafeZones.Value)
             foreach (var grid in gridGroup)
             {
+                // don't grind inside a safe zone (because it doesn't work)
                 if (!safeZone.IsOutside(grid))
                 {
                     throw new UserFacingException($"In a safe zone: {gridName}");
+                }
+
+                // projector doesn't work either
+                if (grid.Physics == null)
+                {
+                    throw new UserFacingException($"Projected grid: {gridName}");
+                }
+
+                // distance filter
+                if (playerOrNull is MyPlayer p)
+                {
+                    var gridPosition = Utils.AvgPosition(gridGroup);
+                    var playerPosition = p.GetPosition();
+                    var distance = Vector3D.Distance(gridPosition, playerPosition);
+                    if (distance > _config.MaxDistance)
+                    {
+                        throw new UserFacingException($"Too far: {gridName}");
+                    }
                 }
             }
 
@@ -73,18 +91,9 @@ namespace InstantGrinder.Core
 
             if (playerOrNull is MyPlayer player)
             {
-                // don't let players transport items
-                var gridPosition = Utils.AvgPosition(gridGroup);
-                var playerPosition = player.GetPosition();
-                var distance = Vector3D.Distance(gridPosition, playerPosition);
-                if (distance > _config.MaxDistance)
-                {
-                    throw new UserFacingException($"Too far: {gridName}");
-                }
-
                 GrindGridsIntoPlayerInventory(gridGroup, player);
             }
-            else
+            else // nobody will receive the items
             {
                 GrindGrids(gridGroup);
             }
