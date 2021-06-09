@@ -4,7 +4,7 @@ using Sandbox.Game;
 using VRage;
 using VRage.Game;
 
-namespace InstantGrinder.Reflections
+namespace InstantGrinder.Patches
 {
     public static class MyInventory_AddItemsInternal
     {

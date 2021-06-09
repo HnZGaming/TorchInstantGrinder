@@ -3,7 +3,7 @@ using System.Reflection;
 using Sandbox.Game.Entities;
 using VRage.Game.Entity;
 
-namespace InstantGrinder.Reflections
+namespace InstantGrinder.Patches
 {
     public static class MySafeZone_IsOutside
     {
