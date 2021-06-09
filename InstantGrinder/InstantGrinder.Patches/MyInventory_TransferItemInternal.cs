@@ -3,7 +3,7 @@ using System.Reflection;
 using Sandbox.Game;
 using VRage;
 
-namespace InstantGrinder.Reflections
+namespace InstantGrinder.Patches
 {
     public static class MyInventory_TransferItemInternal
     {

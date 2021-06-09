@@ -2,7 +2,7 @@
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 
-namespace InstantGrinder.Reflections
+namespace InstantGrinder.Patches
 {
     public static class MySlimBlock_Stockpile
     {

@@ -2,7 +2,7 @@
 using System.Reflection;
 using Sandbox.Game.Entities;
 
-namespace InstantGrinder.Reflections
+namespace InstantGrinder.Patches
 {
     public static class MySessionComponentSafeZones_SafeZones
     {
