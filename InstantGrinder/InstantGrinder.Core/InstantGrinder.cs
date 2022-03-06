@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using InstantGrinder.Patches;
 using Sandbox.Game.Entities;
 using Sandbox.Game.World;
-using Utils.General;
 using Utils.Torch;
 using VRage.Game.ModAPI;
 using VRageMath;
@@ -17,6 +17,7 @@ namespace InstantGrinder.Core
         {
             bool Enabled { get; }
             double MaxDistance { get; }
+            int MaxItemCount { get; }
         }
 
         readonly IConfig _config;
@@ -30,12 +31,12 @@ namespace InstantGrinder.Core
         {
             if (!_config.Enabled)
             {
-                throw new UserFacingException("Plugin not active");
+                throw new InvalidOperationException("Plugin not active");
             }
 
             if (!Utils.TryGetGridGroupByName(gridName, out var gridGroup))
             {
-                throw new UserFacingException($"Not found: {gridName}");
+                throw new InvalidOperationException($"Not found: {gridName}");
             }
 
             GrindGrids(playerOrNull, gridGroup, force, asPlayer);
@@ -45,17 +46,17 @@ namespace InstantGrinder.Core
         {
             if (!_config.Enabled)
             {
-                throw new UserFacingException("Plugin not active");
+                throw new InvalidOperationException("Plugin not active");
             }
 
             if (playerOrNull == null)
             {
-                throw new UserFacingException("Character required");
+                throw new InvalidOperationException("Character required");
             }
 
             if (!playerOrNull.TryGetSelectedGrid(out var grid))
             {
-                throw new UserFacingException("Not found");
+                throw new InvalidOperationException("Not found");
             }
 
             var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(grid);
@@ -70,7 +71,7 @@ namespace InstantGrinder.Core
             isNormalPlayer |= asPlayer; // pretend like a normal player as an admin
             if (isNormalPlayer && !playerOrNull.OwnsAll(gridGroup))
             {
-                throw new UserFacingException("Not yours");
+                throw new InvalidOperationException("Not yours");
             }
 
             foreach (var grid in gridGroup)
@@ -80,14 +81,14 @@ namespace InstantGrinder.Core
                 {
                     if (!safeZone.IsOutside(grid))
                     {
-                        throw new UserFacingException($"In a safe zone: {grid.DisplayName}");
+                        throw new InvalidOperationException($"In a safe zone: {grid.DisplayName}");
                     }
                 }
 
                 // projector doesn't work either
                 if (grid.Physics == null)
                 {
-                    throw new UserFacingException($"Projected grid: {grid.DisplayName}");
+                    throw new InvalidOperationException($"Projected grid: {grid.DisplayName}");
                 }
 
                 // distance filter
@@ -98,7 +99,7 @@ namespace InstantGrinder.Core
                     var distance = Vector3D.Distance(gridPosition, playerPosition);
                     if (distance > _config.MaxDistance)
                     {
-                        throw new UserFacingException($"Too far: {grid.DisplayName}");
+                        throw new InvalidOperationException($"Too far: {grid.DisplayName}");
                     }
                 }
             }
@@ -113,16 +114,16 @@ namespace InstantGrinder.Core
                     msgBuilder.AppendLine($" + {grid.DisplayName}");
                 }
 
-                throw new UserFacingException(msgBuilder.ToString());
+                throw new InvalidOperationException(msgBuilder.ToString());
             }
 
             // don't grind too many items, unless specified
-            var itemCount = Utils.GetInventoryItemCount(gridGroup);
-            if (itemCount > 50 && !force)
+            var itemCount = Utils.GetItemCount(gridGroup);
+            if (itemCount > _config.MaxItemCount && !force)
             {
                 var msgBuilder = new StringBuilder();
-                msgBuilder.AppendLine($"Too many items in inventories: {itemCount}");
-                throw new UserFacingException(msgBuilder.ToString());
+                msgBuilder.AppendLine($"Too many items: {itemCount}");
+                throw new InvalidOperationException(msgBuilder.ToString());
             }
 
             if (playerOrNull is MyPlayer player)
