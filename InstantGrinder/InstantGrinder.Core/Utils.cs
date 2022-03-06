@@ -4,6 +4,7 @@ using InstantGrinder.Patches;
 using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
+using VRage.Game;
 using VRage.Game.Entity;
 using VRage.ModAPI;
 using VRageMath;
@@ -29,24 +30,31 @@ namespace InstantGrinder.Core
             return false;
         }
 
-        public static int GetInventoryItemCount(IEnumerable<MyCubeGrid> gridGroup)
+        public static int GetItemCount(IEnumerable<MyCubeGrid> gridGroup)
         {
-            var itemIds = new HashSet<uint>();
-            foreach (var block in gridGroup.SelectMany(g => g.CubeBlocks))
+            var itemTypeIds = new HashSet<MyDefinitionId>();
+            var blocks = gridGroup.SelectMany(g => g.CubeBlocks);
+            foreach (var block in blocks)
             {
-                if (!(block.FatBlock is MyCubeBlock fatBlock)) continue;
-
-                for (var i = 0; i < fatBlock.InventoryCount; i++)
+                foreach (var compDef in block.BlockDefinition.Components)
                 {
-                    var inventory = fatBlock.GetInventory(i);
-                    foreach (var item in inventory.GetItems())
+                    itemTypeIds.Add(compDef.Definition.Id);
+                }
+
+                if (block.FatBlock is { } fatBlock)
+                {
+                    for (var i = 0; i < fatBlock.InventoryCount; i++)
                     {
-                        itemIds.Add(item.ItemId);
+                        var inventory = fatBlock.GetInventory(i);
+                        foreach (var item in inventory.GetItems())
+                        {
+                            itemTypeIds.Add(item.Content.GetObjectId());
+                        }
                     }
                 }
             }
 
-            return itemIds.Count;
+            return itemTypeIds.Count;
         }
 
         public static void CopyItemsIntoInventory(MyEntity src, MyInventory dst)

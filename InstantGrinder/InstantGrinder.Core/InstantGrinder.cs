@@ -17,6 +17,7 @@ namespace InstantGrinder.Core
         {
             bool Enabled { get; }
             double MaxDistance { get; }
+            int MaxItemCount { get; }
         }
 
         readonly IConfig _config;
@@ -117,11 +118,11 @@ namespace InstantGrinder.Core
             }
 
             // don't grind too many items, unless specified
-            var itemCount = Utils.GetInventoryItemCount(gridGroup);
-            if (itemCount > 50 && !force)
+            var itemCount = Utils.GetItemCount(gridGroup);
+            if (itemCount > _config.MaxItemCount && !force)
             {
                 var msgBuilder = new StringBuilder();
-                msgBuilder.AppendLine($"Too many items in inventories: {itemCount}");
+                msgBuilder.AppendLine($"Too many items: {itemCount}");
                 throw new InvalidOperationException(msgBuilder.ToString());
             }
 
