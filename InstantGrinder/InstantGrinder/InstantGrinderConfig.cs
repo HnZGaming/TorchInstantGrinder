@@ -7,7 +7,7 @@ namespace InstantGrinder
     public sealed class InstantGrinderConfig : ViewModel, Core.InstantGrinder.IConfig
     {
         bool _enabled = true;
-        double _distanceThreshold = 100;
+        double _distanceThreshold = 200;
         int _maxItemCount = 50;
 
         [XmlElement]
