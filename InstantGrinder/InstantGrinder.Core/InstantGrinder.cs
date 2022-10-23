@@ -138,7 +138,7 @@ namespace InstantGrinder.Core
             }
             else // nobody will receive the items
             {
-                var blocks = gridGroup.SelectMany(g => g.CubeBlocks);
+                var blocks = gridGroup.SelectMany(g => g.CubeBlocks).ToArray();
                 foreach (var block in blocks)
                 {
                     block.Remove();

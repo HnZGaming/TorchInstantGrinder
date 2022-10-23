@@ -44,7 +44,7 @@ namespace InstantGrinder
 
             if (!Grinder.TryGrindByName(player, gridName, force, asPlayer, out var objection))
             {
-                Context.Respond($"Failed grinding: \"{objection.Message}\"; To proceed, type the same command.", Color.Yellow);
+                Context.Respond($"Failed grinding: {objection.Message}; To proceed anyway, type the same command again.", Color.Yellow);
                 QueryForce(gridName, pid);
                 return;
             }
