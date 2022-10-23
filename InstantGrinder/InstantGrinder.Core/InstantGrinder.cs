@@ -74,6 +74,7 @@ namespace InstantGrinder.Core
                 throw new InvalidOperationException("Not yours");
             }
 
+            var tooFar = false;
             foreach (var grid in gridGroup)
             {
                 // don't grind inside a safe zone (because it doesn't work)
@@ -99,7 +100,13 @@ namespace InstantGrinder.Core
                     var distance = Vector3D.Distance(gridPosition, playerPosition);
                     if (distance > _config.MaxDistance)
                     {
-                        throw new InvalidOperationException($"Too far: {grid.DisplayName}");
+                        tooFar = true;
+
+                        if (!force)
+                        {
+                            objection = new GrindObjection($"Too far: {grid.DisplayName}; you will not receive items.");
+                            return false;
+                        }
                     }
                 }
             }
@@ -121,11 +128,11 @@ namespace InstantGrinder.Core
             var itemCount = Utils.GetItemCount(gridGroup);
             if (itemCount > _config.MaxItemCount && !force)
             {
-                objection = new GrindObjection($"Too many items: {itemCount}");
+                objection = new GrindObjection($"Too many items: {itemCount}; your character inventory will overflow.");
                 return false;
             }
 
-            if (playerOrNull is MyPlayer player)
+            if (playerOrNull is MyPlayer player && !tooFar)
             {
                 GrindGridsIntoPlayerInventory(gridGroup, player);
             }
