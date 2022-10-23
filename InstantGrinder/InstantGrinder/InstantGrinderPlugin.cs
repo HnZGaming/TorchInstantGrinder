@@ -22,7 +22,7 @@ namespace InstantGrinder
         {
             base.Init(torch);
 
-            var configFilePath = this.MakeConfigFilePath();
+            var configFilePath = this.MakeFilePath($"{nameof(InstantGrinderPlugin)}.cfg");
             _config = Persistent<InstantGrinderConfig>.Load(configFilePath);
 
             _grinder = new Core.InstantGrinder(Config);
