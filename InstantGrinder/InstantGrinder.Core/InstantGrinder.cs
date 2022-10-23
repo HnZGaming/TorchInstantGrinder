@@ -27,7 +27,7 @@ namespace InstantGrinder.Core
             _config = config;
         }
 
-        public void GrindGridByName(MyPlayer playerOrNull, string gridName, bool force, bool asPlayer)
+        public bool TryGrindByName(MyPlayer playerOrNull, string gridName, bool force, bool asPlayer, out GrindObjection objection)
         {
             if (!_config.Enabled)
             {
@@ -39,10 +39,10 @@ namespace InstantGrinder.Core
                 throw new InvalidOperationException($"Not found: {gridName}");
             }
 
-            GrindGrids(playerOrNull, gridGroup, force, asPlayer);
+            return GrindGrids(playerOrNull, gridGroup, force, asPlayer, out objection);
         }
 
-        public void GrindGridSelected(MyPlayer playerOrNull, bool force, bool asPlayer)
+        public bool GrindGridSelected(MyPlayer playerOrNull, bool force, bool asPlayer, out GrindObjection objection)
         {
             if (!_config.Enabled)
             {
@@ -61,10 +61,10 @@ namespace InstantGrinder.Core
 
             var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(grid);
             var grids = gridGroup.Nodes.Select(n => n.NodeData).ToArray();
-            GrindGrids(playerOrNull, grids, force, asPlayer);
+            return GrindGrids(playerOrNull, grids, force, asPlayer, out objection);
         }
 
-        void GrindGrids(IMyPlayer playerOrNull, IReadOnlyList<MyCubeGrid> gridGroup, bool force, bool asPlayer)
+        bool GrindGrids(IMyPlayer playerOrNull, IReadOnlyList<MyCubeGrid> gridGroup, bool force, bool asPlayer, out GrindObjection objection)
         {
             // don't let non-owners grind a grid
             var isNormalPlayer = playerOrNull?.IsNormalPlayer() ?? false;
@@ -121,9 +121,8 @@ namespace InstantGrinder.Core
             var itemCount = Utils.GetItemCount(gridGroup);
             if (itemCount > _config.MaxItemCount && !force)
             {
-                var msgBuilder = new StringBuilder();
-                msgBuilder.AppendLine($"Too many items: {itemCount}");
-                throw new InvalidOperationException(msgBuilder.ToString());
+                objection = new GrindObjection($"Too many items: {itemCount}");
+                return false;
             }
 
             if (playerOrNull is MyPlayer player)
@@ -132,16 +131,15 @@ namespace InstantGrinder.Core
             }
             else // nobody will receive the items
             {
-                GrindGrids(gridGroup);
+                var blocks = gridGroup.SelectMany(g => g.CubeBlocks);
+                foreach (var block in blocks)
+                {
+                    block.Remove();
+                }
             }
-        }
 
-        void GrindGrids(IEnumerable<MyCubeGrid> gridGroup)
-        {
-            foreach (var block in gridGroup.SelectMany(g => g.CubeBlocks))
-            {
-                Utils.GrindBlock(block);
-            }
+            objection = default;
+            return true;
         }
 
         void GrindGridsIntoPlayerInventory(IEnumerable<MyCubeGrid> gridGroup, MyPlayer player)

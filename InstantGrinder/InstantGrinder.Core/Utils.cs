@@ -87,10 +87,10 @@ namespace InstantGrinder.Core
                 dst.AddItemsInternal(item.Content, item.Amount);
             }
 
-            GrindBlock(src);
+            src.Remove();
         }
 
-        public static void GrindBlock(MySlimBlock block)
+        public static void Remove(this MySlimBlock block)
         {
             block.CubeGrid.RazeBlock(block.Min);
         }
