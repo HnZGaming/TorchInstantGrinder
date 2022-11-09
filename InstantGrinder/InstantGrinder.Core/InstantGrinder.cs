@@ -121,7 +121,8 @@ namespace InstantGrinder.Core
                     msgBuilder.AppendLine($" + {grid.DisplayName}");
                 }
 
-                throw new InvalidOperationException(msgBuilder.ToString());
+                objection = new GrindObjection(msgBuilder.ToString());
+                return false;
             }
 
             // don't grind too many items, unless specified
