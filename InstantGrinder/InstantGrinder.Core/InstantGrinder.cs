@@ -6,6 +6,7 @@ using InstantGrinder.Patches;
 using Sandbox.Game.Entities;
 using Sandbox.Game.World;
 using Utils.Torch;
+using VRage.Game;
 using VRage.Game.ModAPI;
 using VRageMath;
 
@@ -90,6 +91,13 @@ namespace InstantGrinder.Core
                 if (grid.Physics == null)
                 {
                     throw new InvalidOperationException($"Projected grid: {grid.DisplayName}");
+                }
+
+                // large grid
+                if (grid.GridSizeEnum == MyCubeSize.Large && !force)
+                {
+                    objection = new GrindObjection("Grinding a large grid can break your character inventory.");
+                    return false;
                 }
 
                 // distance filter
