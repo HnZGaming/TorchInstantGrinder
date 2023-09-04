@@ -81,7 +81,7 @@ namespace InstantGrinder.Core
                 // don't grind inside a safe zone (because it doesn't work)
                 foreach (var safeZone in MySessionComponentSafeZones_SafeZones.Value)
                 {
-                    if (!safeZone.IsOutside(grid))
+                    if (!safeZone.IsOutside(grid.PositionComp.WorldAABB))
                     {
                         throw new InvalidOperationException($"In a safe zone: {grid.DisplayName}");
                     }
