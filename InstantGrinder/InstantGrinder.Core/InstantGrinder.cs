@@ -6,6 +6,7 @@ using InstantGrinder.Patches;
 using Sandbox.Game.Entities;
 using Sandbox.Game.World;
 using Utils.Torch;
+using VRage.Game;
 using VRage.Game.ModAPI;
 using VRageMath;
 
@@ -27,7 +28,7 @@ namespace InstantGrinder.Core
             _config = config;
         }
 
-        public void GrindGridByName(MyPlayer playerOrNull, string gridName, bool force, bool asPlayer)
+        public bool TryGrindByName(MyPlayer playerOrNull, string gridName, bool force, bool asPlayer, out GrindObjection objection)
         {
             if (!_config.Enabled)
             {
@@ -39,10 +40,10 @@ namespace InstantGrinder.Core
                 throw new InvalidOperationException($"Not found: {gridName}");
             }
 
-            GrindGrids(playerOrNull, gridGroup, force, asPlayer);
+            return GrindGrids(playerOrNull, gridGroup, force, asPlayer, out objection);
         }
 
-        public void GrindGridSelected(MyPlayer playerOrNull, bool force, bool asPlayer)
+        public bool GrindGridSelected(MyPlayer playerOrNull, bool force, bool asPlayer, out GrindObjection objection)
         {
             if (!_config.Enabled)
             {
@@ -61,10 +62,10 @@ namespace InstantGrinder.Core
 
             var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(grid);
             var grids = gridGroup.Nodes.Select(n => n.NodeData).ToArray();
-            GrindGrids(playerOrNull, grids, force, asPlayer);
+            return GrindGrids(playerOrNull, grids, force, asPlayer, out objection);
         }
 
-        void GrindGrids(IMyPlayer playerOrNull, IReadOnlyList<MyCubeGrid> gridGroup, bool force, bool asPlayer)
+        bool GrindGrids(IMyPlayer playerOrNull, IReadOnlyList<MyCubeGrid> gridGroup, bool force, bool asPlayer, out GrindObjection objection)
         {
             // don't let non-owners grind a grid
             var isNormalPlayer = playerOrNull?.IsNormalPlayer() ?? false;
@@ -74,12 +75,13 @@ namespace InstantGrinder.Core
                 throw new InvalidOperationException("Not yours");
             }
 
+            var tooFar = false;
             foreach (var grid in gridGroup)
             {
                 // don't grind inside a safe zone (because it doesn't work)
                 foreach (var safeZone in MySessionComponentSafeZones_SafeZones.Value)
                 {
-                    if (!safeZone.IsOutside(grid))
+                    if (!safeZone.IsOutside(grid.PositionComp.WorldAABB))
                     {
                         throw new InvalidOperationException($"In a safe zone: {grid.DisplayName}");
                     }
@@ -91,6 +93,13 @@ namespace InstantGrinder.Core
                     throw new InvalidOperationException($"Projected grid: {grid.DisplayName}");
                 }
 
+                // large grid
+                if (grid.GridSizeEnum == MyCubeSize.Large && !force)
+                {
+                    objection = new GrindObjection("Grinding a large grid can break your character inventory.");
+                    return false;
+                }
+
                 // distance filter
                 if (playerOrNull is MyPlayer p)
                 {
@@ -99,7 +108,13 @@ namespace InstantGrinder.Core
                     var distance = Vector3D.Distance(gridPosition, playerPosition);
                     if (distance > _config.MaxDistance)
                     {
-                        throw new InvalidOperationException($"Too far: {grid.DisplayName}");
+                        tooFar = true;
+
+                        if (!force)
+                        {
+                            objection = new GrindObjection($"Too far: {grid.DisplayName}; you will not receive items.");
+                            return false;
+                        }
                     }
                 }
             }
@@ -114,34 +129,33 @@ namespace InstantGrinder.Core
                     msgBuilder.AppendLine($" + {grid.DisplayName}");
                 }
 
-                throw new InvalidOperationException(msgBuilder.ToString());
+                objection = new GrindObjection(msgBuilder.ToString());
+                return false;
             }
 
             // don't grind too many items, unless specified
             var itemCount = Utils.GetItemCount(gridGroup);
             if (itemCount > _config.MaxItemCount && !force)
             {
-                var msgBuilder = new StringBuilder();
-                msgBuilder.AppendLine($"Too many items: {itemCount}");
-                throw new InvalidOperationException(msgBuilder.ToString());
+                objection = new GrindObjection($"Too many items: {itemCount}; your character inventory will overflow.");
+                return false;
             }
 
-            if (playerOrNull is MyPlayer player)
+            if (playerOrNull is MyPlayer player && !tooFar)
             {
                 GrindGridsIntoPlayerInventory(gridGroup, player);
             }
             else // nobody will receive the items
             {
-                GrindGrids(gridGroup);
+                var blocks = gridGroup.SelectMany(g => g.CubeBlocks).ToArray();
+                foreach (var block in blocks)
+                {
+                    block.Remove();
+                }
             }
-        }
 
-        void GrindGrids(IEnumerable<MyCubeGrid> gridGroup)
-        {
-            foreach (var block in gridGroup.SelectMany(g => g.CubeBlocks))
-            {
-                Utils.GrindBlock(block);
-            }
+            objection = default;
+            return true;
         }
 
         void GrindGridsIntoPlayerInventory(IEnumerable<MyCubeGrid> gridGroup, MyPlayer player)
