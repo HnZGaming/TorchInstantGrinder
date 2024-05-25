@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using InstantGrinder.Patches;
 using Sandbox.Game.Entities;
 using Sandbox.Game.World;
 using Utils.Torch;
@@ -79,7 +78,7 @@ namespace InstantGrinder.Core
             foreach (var grid in gridGroup)
             {
                 // don't grind inside a safe zone (because it doesn't work)
-                foreach (var safeZone in MySessionComponentSafeZones_SafeZones.Value)
+                foreach (var safeZone in MySessionComponentSafeZones.SafeZones)
                 {
                     if (!safeZone.IsOutside(grid.PositionComp.WorldAABB))
                     {
