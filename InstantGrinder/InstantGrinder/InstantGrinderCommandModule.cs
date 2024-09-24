@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
+using InstantGrinder.Core;
 using NLog;
 using Sandbox.Game.World;
 using Torch.Commands;
@@ -42,10 +44,10 @@ namespace InstantGrinder
             var pid = player?.SteamId() ?? 0L;
             var force = TestForce(pid, gridName);
 
-            if (!Grinder.TryGrindByName(player, gridName, force, asPlayer, out var objection))
+            var objections = new List<GrindObjection>();
+            if (!Grinder.TryGrindByName(player, gridName, force, asPlayer, objections))
             {
-                Context.Respond($"Failed grinding: {objection.Message}; To proceed anyway, type the same command again.", Color.Yellow);
-                QueryForce(gridName, pid);
+                RespondWithObjections(gridName, pid, objections);
                 return;
             }
 
@@ -60,15 +62,31 @@ namespace InstantGrinder
             var pid = player?.SteamId() ?? 0L;
             var force = TestForce(pid, "this");
 
-            if (!Grinder.GrindGridSelected(Context.Player as MyPlayer, force, asPlayer, out var objection))
+            var objections = new List<GrindObjection>();
+            if (!Grinder.GrindGridSelected(Context.Player as MyPlayer, force, asPlayer, objections))
             {
-                Context.Respond($"Failed grinding: \"{objection.Message}\"; To proceed, type the same command.", Color.Yellow);
-                QueryForce("this", pid);
+                RespondWithObjections("this", pid, objections);
                 return;
             }
 
             Context.Respond("Finished grinding grid");
         });
+
+        void RespondWithObjections(string command, ulong steamId, IReadOnlyList<GrindObjection> objections)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("Failed grinding:");
+            for (var i = 0; i < objections.Count; i++)
+            {
+                var objection = objections[i];
+                sb.AppendLine($"[{i + 1}] {objection.Message}");
+            }
+
+            sb.AppendLine("To proceed anyway, type the same command again.");
+
+            Context.Respond(sb.ToString(), Color.Yellow);
+            QueryForce(command, steamId);
+        }
 
         static bool TestForce(ulong pid, string gridName)
         {
