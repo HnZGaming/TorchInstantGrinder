@@ -152,6 +152,7 @@
         <Reference Include="PresentationFramework" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="InstantGrinder.Core\ConfirmQuery.cs" />
         <Compile Include="InstantGrinder.Core\InstantGrinder.cs" />
         <Compile Include="InstantGrinder.Core\GrindObjection.cs" />
         <Compile Include="InstantGrinder.Core\Utils.cs" />

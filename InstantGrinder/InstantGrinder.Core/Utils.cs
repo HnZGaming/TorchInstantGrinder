@@ -30,11 +30,10 @@ namespace InstantGrinder.Core
             return false;
         }
 
-        public static int GetItemCount(IEnumerable<MyCubeGrid> gridGroup)
+        public static int GetItemCount(MyCubeGrid grid)
         {
             var itemTypeIds = new HashSet<MyDefinitionId>();
-            var blocks = gridGroup.SelectMany(g => g.CubeBlocks);
-            foreach (var block in blocks)
+            foreach (var block in grid.CubeBlocks)
             {
                 foreach (var compDef in block.BlockDefinition.Components)
                 {

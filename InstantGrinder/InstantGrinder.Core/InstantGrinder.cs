@@ -25,7 +25,7 @@ namespace InstantGrinder.Core
             _config = config;
         }
 
-        public bool TryGrindByName(MyPlayer playerOrNull, string gridName, bool force, bool asPlayer, ICollection<GrindObjection> objections)
+        public bool TryGrindByName(MyPlayer playerOrNull, string gridName, bool force, bool asPlayer, ICollection<IGrindObjection> objections)
         {
             if (!_config.Enabled)
             {
@@ -40,7 +40,7 @@ namespace InstantGrinder.Core
             return GrindGrids(playerOrNull, gridGroup, force, asPlayer, objections);
         }
 
-        public bool GrindGridSelected(MyPlayer playerOrNull, bool force, bool asPlayer, ICollection<GrindObjection> objections)
+        public bool GrindGridSelected(MyPlayer playerOrNull, bool force, bool asPlayer, ICollection<IGrindObjection> objections)
         {
             if (!_config.Enabled)
             {
@@ -62,7 +62,7 @@ namespace InstantGrinder.Core
             return GrindGrids(playerOrNull, grids, force, asPlayer, objections);
         }
 
-        bool GrindGrids(IMyPlayer playerOrNull, IReadOnlyList<MyCubeGrid> gridGroup, bool force, bool asPlayer, ICollection<GrindObjection> objections)
+        bool GrindGrids(IMyPlayer playerOrNull, IReadOnlyList<MyCubeGrid> gridGroup, bool force, bool asPlayer, ICollection<IGrindObjection> objections)
         {
             // don't let non-owners grind a grid
             var isNormalPlayer = playerOrNull?.IsNormalPlayer() ?? false;
@@ -72,7 +72,7 @@ namespace InstantGrinder.Core
                 throw new InvalidOperationException("Not yours");
             }
 
-            var tooFar = false;
+            var farGrids = new List<MyCubeGrid>();
             var hasObjection = false;
             foreach (var grid in gridGroup)
             {
@@ -99,31 +99,32 @@ namespace InstantGrinder.Core
                     var distance = Vector3D.Distance(gridPosition, playerPosition);
                     if (distance > _config.MaxDistance)
                     {
-                        tooFar = true;
-                        objections.Add(new($"Grinding but not receiving items due to distance: {grid.DisplayName}."));
-                        hasObjection = true;
+                        farGrids.Add(grid);
                     }
                 }
             }
 
+            var gridNames = gridGroup.Select(g => g.DisplayName).ToArray();
+
             // don't grind multiple grids at once, unless specified
             if (gridGroup.Count > 1)
             {
-                var gridNames = new List<string>();
-                foreach (var grid in gridGroup)
-                {
-                    gridNames.Add(grid.DisplayName);
-                }
+                objections.Add(new GrindObjectionMultipleGrinds(gridNames));
+                hasObjection = true;
+            }
 
-                objections.Add(new($"Grinding multiple grids: {string.Join(", ", gridNames)}."));
+            // distance filter
+            if (farGrids.Count > 0)
+            {
+                objections.Add(new GrindObjectionUnrecoverable(gridNames));
                 hasObjection = true;
             }
 
             // don't grind too many items, unless specified
-            var itemCount = Utils.GetItemCount(gridGroup);
+            var itemCount = gridGroup.Sum(g => Utils.GetItemCount(g));
             if (itemCount > _config.MaxItemCount)
             {
-                objections.Add(new($"Potentially overflowing character inventory with items: {itemCount}."));
+                objections.Add(new GrindObjectionOverflowItems(itemCount));
                 hasObjection = true;
             }
 
@@ -132,7 +133,7 @@ namespace InstantGrinder.Core
                 return false;
             }
 
-            if (playerOrNull is MyPlayer player && !tooFar)
+            if (playerOrNull is MyPlayer player && farGrids.Count == 0)
             {
                 GrindGridsIntoPlayerInventory(gridGroup, player);
             }

@@ -1,12 +1,12 @@
 ﻿namespace InstantGrinder.Core
 {
-    public readonly struct GrindObjection
+    public interface IGrindObjection
     {
-        public readonly string Message;
-
-        public GrindObjection(string message)
-        {
-            Message = message;
-        }
     }
+
+    public record GrindObjectionOverflowItems(int itemCount) : IGrindObjection;
+
+    public record GrindObjectionMultipleGrinds(string[] gridNames) : IGrindObjection;
+
+    public record GrindObjectionUnrecoverable(string[] gridNames) : IGrindObjection;
 }

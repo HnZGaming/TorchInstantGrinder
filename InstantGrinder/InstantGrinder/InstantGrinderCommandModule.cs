@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using InstantGrinder.Core;
 using NLog;
 using Sandbox.Game.World;
 using Torch.Commands;
 using Torch.Commands.Permissions;
+using Utils.General;
 using Utils.Torch;
 using VRage.Game.ModAPI;
 using VRageMath;
@@ -16,7 +18,7 @@ namespace InstantGrinder
     public sealed class InstantGrinderCommandModule : CommandModule
     {
         static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        static readonly Dictionary<ulong, (string Query, DateTime Timestamp)> _queries = new();
+        static readonly ConfirmQuery ConfirmQuery = new();
 
         InstantGrinderPlugin Plugin => (InstantGrinderPlugin)Context.Plugin;
         InstantGrinderConfig Config => Plugin.Config;
@@ -42,9 +44,9 @@ namespace InstantGrinder
         {
             var player = Context.Player as MyPlayer;
             var pid = player?.SteamId() ?? 0L;
-            var force = TestForce(pid, gridName);
+            var force = ConfirmQuery.IsConfirming(pid, gridName);
 
-            var objections = new List<GrindObjection>();
+            var objections = new List<IGrindObjection>();
             if (!Grinder.TryGrindByName(player, gridName, force, asPlayer, objections))
             {
                 RespondWithObjections(gridName, pid, objections);
@@ -60,9 +62,9 @@ namespace InstantGrinder
         {
             var player = Context.Player as MyPlayer;
             var pid = player?.SteamId() ?? 0L;
-            var force = TestForce(pid, "this");
+            var force = ConfirmQuery.IsConfirming(pid, "this");
 
-            var objections = new List<GrindObjection>();
+            var objections = new List<IGrindObjection>();
             if (!Grinder.GrindGridSelected(Context.Player as MyPlayer, force, asPlayer, objections))
             {
                 RespondWithObjections("this", pid, objections);
@@ -72,32 +74,66 @@ namespace InstantGrinder
             Context.Respond("Finished grinding grid");
         });
 
-        void RespondWithObjections(string command, ulong steamId, IReadOnlyList<GrindObjection> objections)
+        void RespondWithObjections(string command, ulong steamId, IReadOnlyList<IGrindObjection> objections)
         {
+            Log.Info(objections.Select(o=>o.GetType()).ToStringSeq());
+            
             var sb = new StringBuilder();
-            sb.AppendLine("Failed grinding:");
+            sb.AppendLine($"Failed grinding ({objections.Count} reasons):");
+
             for (var i = 0; i < objections.Count; i++)
             {
-                var objection = objections[i];
-                sb.AppendLine($"[{i + 1}] {objection.Message}");
+                switch (objections[i])
+                {
+                    case GrindObjectionMultipleGrinds objection:
+                    {
+                        sb.AppendLine($"[{i + 1}] Grinding multiple grids ({objection.gridNames.Length}):");
+                        for (var j = 0; j < objection.gridNames.Length; j++)
+                        {
+                            sb.AppendLine($"   <{j + 1}> {objection.gridNames[j]}");
+                        }
+
+                        break;
+                    }
+                    case GrindObjectionUnrecoverable objection:
+                    {
+                        sb.AppendLine($"[{i + 1}] Too far to recover components ({objection.gridNames.Length}):");
+                        for (var j = 0; j < objection.gridNames.Length; j++)
+                        {
+                            sb.AppendLine($"   <{j + 1}> {objection.gridNames[j]}");
+                        }
+
+                        break;
+                    }
+                    case GrindObjectionOverflowItems objection:
+                    {
+                        sb.AppendLine($"[{i + 1}] Overflowing character inventory: {objection.itemCount} items");
+
+                        break;
+                    }
+                }
             }
 
             sb.AppendLine("To proceed anyway, type the same command again.");
 
             Context.Respond(sb.ToString(), Color.Yellow);
-            QueryForce(command, steamId);
+            ConfirmQuery.QueryConfirm(command, steamId);
         }
 
-        static bool TestForce(ulong pid, string gridName)
+        [Command("clear", "Clear confirmation queue")]
+        [Permission(MyPromoteLevel.None)]
+        public void ClearConfirmQueue() => this.CatchAndReport(() =>
         {
-            return _queries.TryGetValue(pid, out var q)
-                   && q.Query == gridName
-                   && (DateTime.UtcNow - q.Timestamp).TotalSeconds < 30;
-        }
-
-        static void QueryForce(string gridName, ulong pid)
-        {
-            _queries[pid] = (gridName, DateTime.UtcNow);
-        }
+            var player = Context.Player as MyPlayer;
+            var pid = player?.SteamId() ?? 0L;
+            if (pid != 0)
+            {
+                ConfirmQuery.Clear(pid);
+            }
+            else
+            {
+                ConfirmQuery.ClearAll();
+            }
+        });
     }
 }
