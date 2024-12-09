@@ -18,7 +18,7 @@ namespace InstantGrinder
     public sealed class InstantGrinderCommandModule : CommandModule
     {
         static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        static readonly ConfirmQuery ConfirmQuery = new();
+        static readonly ConfirmationCollection ConfirmationCollection = new();
 
         InstantGrinderPlugin Plugin => (InstantGrinderPlugin)Context.Plugin;
         InstantGrinderConfig Config => Plugin.Config;
@@ -44,16 +44,10 @@ namespace InstantGrinder
         {
             var player = Context.Player as MyPlayer;
             var pid = player?.SteamId() ?? 0L;
-            var force = ConfirmQuery.IsConfirming(pid, gridName);
-
+            var confirmed = ConfirmationCollection.IsConfirmation(pid, gridName);
             var objections = new List<IGrindObjection>();
-            if (!Grinder.TryGrindByName(player, gridName, force, asPlayer, objections))
-            {
-                RespondWithObjections(gridName, pid, objections);
-                return;
-            }
-
-            Context.Respond($"Finished grinding grid: {gridName}");
+            Grinder.TryGrindByName(player, gridName, confirmed, asPlayer, objections);
+            Respond(gridName, pid, confirmed, objections);
         });
 
         [Command("this", "Grind a grid that the player is looking at or seated on.")]
@@ -62,24 +56,41 @@ namespace InstantGrinder
         {
             var player = Context.Player as MyPlayer;
             var pid = player?.SteamId() ?? 0L;
-            var force = ConfirmQuery.IsConfirming(pid, "this");
-
+            var confirmed = ConfirmationCollection.IsConfirmation(pid, "this");
             var objections = new List<IGrindObjection>();
-            if (!Grinder.GrindGridSelected(Context.Player as MyPlayer, force, asPlayer, objections))
-            {
-                RespondWithObjections("this", pid, objections);
-                return;
-            }
-
-            Context.Respond("Finished grinding grid");
+            Grinder.GrindGridSelected(Context.Player as MyPlayer, confirmed, asPlayer, objections);
+            Respond("this", pid, confirmed, objections);
         });
 
-        void RespondWithObjections(string command, ulong steamId, IReadOnlyList<IGrindObjection> objections)
+        void Respond(string command, ulong steamId, bool confirmed, List<IGrindObjection> objections)
         {
-            Log.Info(objections.Select(o=>o.GetType()).ToStringSeq());
-            
             var sb = new StringBuilder();
-            sb.AppendLine($"Failed grinding ({objections.Count} reasons):");
+
+            if (objections.Count > 0)
+            {
+                FormatObjections(sb, objections);
+            }
+
+            if (confirmed)
+            {
+                Context.Respond("Finished grinding grid");
+
+                ConfirmationCollection.Clear(steamId);
+            }
+            else
+            {
+                sb.AppendLine("Type the same command again to proceed.");
+                Context.Respond(sb.ToString(), Color.Yellow);
+
+                ConfirmationCollection.PendConfirmation(command, steamId);
+            }
+        }
+
+        static void FormatObjections(StringBuilder sb, IReadOnlyList<IGrindObjection> objections)
+        {
+            Log.Info(objections.Select(o => o.GetType()).ToStringSeq());
+
+            sb.AppendLine($"Failed grinding ({objections.Count}); reasons:");
 
             for (var i = 0; i < objections.Count; i++)
             {
@@ -113,26 +124,21 @@ namespace InstantGrinder
                     }
                 }
             }
-
-            sb.AppendLine("To proceed anyway, type the same command again.");
-
-            Context.Respond(sb.ToString(), Color.Yellow);
-            ConfirmQuery.QueryConfirm(command, steamId);
         }
 
-        [Command("clear", "Clear confirmation queue")]
+        [Command("clear", "Clear confirmation collections")]
         [Permission(MyPromoteLevel.None)]
-        public void ClearConfirmQueue() => this.CatchAndReport(() =>
+        public void ClearConfirmationCollection() => this.CatchAndReport(() =>
         {
             var player = Context.Player as MyPlayer;
             var pid = player?.SteamId() ?? 0L;
             if (pid != 0)
             {
-                ConfirmQuery.Clear(pid);
+                ConfirmationCollection.Clear(pid);
             }
             else
             {
-                ConfirmQuery.ClearAll();
+                ConfirmationCollection.ClearAll();
             }
         });
     }

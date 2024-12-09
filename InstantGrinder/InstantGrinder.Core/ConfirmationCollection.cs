@@ -3,23 +3,23 @@ using System.Collections.Generic;
 
 namespace InstantGrinder.Core
 {
-    public sealed class ConfirmQuery
+    public sealed class ConfirmationCollection
     {
         readonly Dictionary<ulong, (string Query, DateTime Timestamp)> _queries;
 
-        public ConfirmQuery()
+        public ConfirmationCollection()
         {
             _queries = new Dictionary<ulong, (string Query, DateTime Timestamp)>();
         }
 
-        public bool IsConfirming(ulong pid, string gridName)
+        public bool IsConfirmation(ulong pid, string gridName)
         {
             return _queries.TryGetValue(pid, out var q)
                    && q.Query == gridName
                    && (DateTime.UtcNow - q.Timestamp).TotalSeconds < 30;
         }
 
-        public void QueryConfirm(string gridName, ulong pid)
+        public void PendConfirmation(string gridName, ulong pid)
         {
             _queries[pid] = (gridName, DateTime.UtcNow);
         }

@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
     <PropertyGroup>
-        <Version>2.1.9033.36968</Version>
+        <Version>2.2.0.0</Version>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     </PropertyGroup>
     <PropertyGroup>
@@ -196,7 +196,7 @@
         <Reference Include="PresentationFramework" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="InstantGrinder.Core\ConfirmQuery.cs" />
+        <Compile Include="InstantGrinder.Core\ConfirmationCollection.cs" />
         <Compile Include="InstantGrinder.Core\InstantGrinder.cs" />
         <Compile Include="InstantGrinder.Core\GrindObjection.cs" />
         <Compile Include="InstantGrinder.Core\Utils.cs" />

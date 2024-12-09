@@ -25,7 +25,7 @@ namespace InstantGrinder.Core
             _config = config;
         }
 
-        public bool TryGrindByName(MyPlayer playerOrNull, string gridName, bool force, bool asPlayer, ICollection<IGrindObjection> objections)
+        public void TryGrindByName(MyPlayer playerOrNull, string gridName, bool confirmed, bool asPlayer, ICollection<IGrindObjection> objections)
         {
             if (!_config.Enabled)
             {
@@ -37,10 +37,10 @@ namespace InstantGrinder.Core
                 throw new InvalidOperationException($"Not found: {gridName}");
             }
 
-            return GrindGrids(playerOrNull, gridGroup, force, asPlayer, objections);
+            GrindGrids(playerOrNull, gridGroup, confirmed, asPlayer, objections);
         }
 
-        public bool GrindGridSelected(MyPlayer playerOrNull, bool force, bool asPlayer, ICollection<IGrindObjection> objections)
+        public void GrindGridSelected(MyPlayer playerOrNull, bool confirmed, bool asPlayer, ICollection<IGrindObjection> objections)
         {
             if (!_config.Enabled)
             {
@@ -59,10 +59,10 @@ namespace InstantGrinder.Core
 
             var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(grid);
             var grids = gridGroup.Nodes.Select(n => n.NodeData).ToArray();
-            return GrindGrids(playerOrNull, grids, force, asPlayer, objections);
+            GrindGrids(playerOrNull, grids, confirmed, asPlayer, objections);
         }
 
-        bool GrindGrids(IMyPlayer playerOrNull, IReadOnlyList<MyCubeGrid> gridGroup, bool force, bool asPlayer, ICollection<IGrindObjection> objections)
+        void GrindGrids(IMyPlayer playerOrNull, IReadOnlyList<MyCubeGrid> gridGroup, bool confirmed, bool asPlayer, ICollection<IGrindObjection> objections)
         {
             // don't let non-owners grind a grid
             var isNormalPlayer = playerOrNull?.IsNormalPlayer() ?? false;
@@ -73,7 +73,6 @@ namespace InstantGrinder.Core
             }
 
             var farGrids = new List<MyCubeGrid>();
-            var hasObjection = false;
             foreach (var grid in gridGroup)
             {
                 // don't grind inside a safe zone (because it doesn't work)
@@ -110,14 +109,12 @@ namespace InstantGrinder.Core
             if (gridGroup.Count > 1)
             {
                 objections.Add(new GrindObjectionMultipleGrinds(gridNames));
-                hasObjection = true;
             }
 
             // distance filter
             if (farGrids.Count > 0)
             {
                 objections.Add(new GrindObjectionUnrecoverable(gridNames));
-                hasObjection = true;
             }
 
             // don't grind too many items, unless specified
@@ -125,13 +122,9 @@ namespace InstantGrinder.Core
             if (itemCount > _config.MaxItemCount)
             {
                 objections.Add(new GrindObjectionOverflowItems(itemCount));
-                hasObjection = true;
             }
 
-            if (hasObjection && !force)
-            {
-                return false;
-            }
+            if (!confirmed) return;
 
             if (playerOrNull is MyPlayer player && farGrids.Count == 0)
             {
@@ -145,8 +138,6 @@ namespace InstantGrinder.Core
                     block.Remove();
                 }
             }
-
-            return true;
         }
 
         void GrindGridsIntoPlayerInventory(IEnumerable<MyCubeGrid> gridGroup, MyPlayer player)
