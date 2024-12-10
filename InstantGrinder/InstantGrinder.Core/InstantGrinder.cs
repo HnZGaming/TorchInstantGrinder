@@ -132,10 +132,9 @@ namespace InstantGrinder.Core
             }
             else // nobody will receive the items
             {
-                var blocks = gridGroup.SelectMany(g => g.CubeBlocks).ToArray();
-                foreach (var block in blocks)
+                foreach (var grid in gridGroup)
                 {
-                    block.Remove();
+                    grid.Close();
                 }
             }
         }
@@ -157,7 +156,12 @@ namespace InstantGrinder.Core
             // then grind them down
             foreach (var block in blocks)
             {
-                Utils.GrindBlockIntoInventory(block, playerInventory);
+                Utils.DeconstructStockpile(block, playerInventory);
+            }
+            
+            foreach (var grid in gridGroup)
+            {
+                grid.Close();
             }
 
             playerInventory.Refresh();

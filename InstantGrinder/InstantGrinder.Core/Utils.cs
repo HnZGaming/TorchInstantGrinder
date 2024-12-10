@@ -74,24 +74,17 @@ namespace InstantGrinder.Core
             }
         }
 
-        public static void GrindBlockIntoInventory(MySlimBlock src, MyInventory dst)
+        public static void DeconstructStockpile(MySlimBlock block, MyInventory inv)
         {
-            src.DeconstructStockpile(float.MaxValue, dst);
+            block.DeconstructStockpile(float.MaxValue, inv);
 
-            var stockpile = src.Value();
+            var stockpile = block.GetStockpile();
             if (stockpile == null) return;
 
             foreach (var item in stockpile.GetItems())
             {
-                dst.AddItemsInternal(item.Content, item.Amount);
+                inv.AddItemsInternal(item.Content, item.Amount);
             }
-
-            src.Remove();
-        }
-
-        public static void Remove(this MySlimBlock block)
-        {
-            block.CubeGrid.RazeBlock(block.Min);
         }
 
         public static Vector3D AvgPosition(IReadOnlyList<IMyEntity> entities)
