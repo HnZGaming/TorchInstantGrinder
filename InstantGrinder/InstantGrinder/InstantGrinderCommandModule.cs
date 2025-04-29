@@ -31,7 +31,7 @@ namespace InstantGrinder
             this.GetOrSetProperty(Config);
         }
 
-        [Command("commands", "List of commands.")]
+        [Command("", "List of commands.")]
         [Permission(MyPromoteLevel.None)]
         public void Commands()
         {
