@@ -17,9 +17,14 @@ namespace InstantGrinder.Patches
             typeof(bool),
         };
 
-        delegate void MethodDelegate(MySlimBlock self, float deconstructAmount, MyInventoryBase outputInventory, bool useDefaultDeconstructEfficiency);
+        delegate void MethodDelegate(
+            MySlimBlock self,
+            float deconstructAmount,
+            MyInventoryBase outputInventory,
+            bool useDefaultDeconstructEfficiency = false);
+
         static readonly MethodInfo Method = typeof(MySlimBlock).GetMethod(MethodName, Flags, null, ParameterTypes, null);
-        static readonly MethodDelegate MethodDelegateInstance = (MethodDelegate) Delegate.CreateDelegate(typeof(MethodDelegate), Method);
+        static readonly MethodDelegate MethodDelegateInstance = (MethodDelegate)Delegate.CreateDelegate(typeof(MethodDelegate), Method);
 
         public static void DeconstructStockpile(
             this MySlimBlock self,

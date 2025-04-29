@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using InstantGrinder.Core;
 using NLog;
 using Sandbox.Game.World;
 using Torch.Commands;
 using Torch.Commands.Permissions;
+using Utils.General;
 using Utils.Torch;
 using VRage.Game.ModAPI;
 using VRageMath;
@@ -14,7 +18,7 @@ namespace InstantGrinder
     public sealed class InstantGrinderCommandModule : CommandModule
     {
         static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        static readonly Dictionary<ulong, (string Query, DateTime Timestamp)> _queries = new();
+        static readonly ConfirmationCollection ConfirmationCollection = new();
 
         InstantGrinderPlugin Plugin => (InstantGrinderPlugin)Context.Plugin;
         InstantGrinderConfig Config => Plugin.Config;
@@ -27,7 +31,7 @@ namespace InstantGrinder
             this.GetOrSetProperty(Config);
         }
 
-        [Command("commands", "List of commands.")]
+        [Command("", "List of commands.")]
         [Permission(MyPromoteLevel.None)]
         public void Commands()
         {
@@ -40,16 +44,10 @@ namespace InstantGrinder
         {
             var player = Context.Player as MyPlayer;
             var pid = player?.SteamId() ?? 0L;
-            var force = TestForce(pid, gridName);
-
-            if (!Grinder.TryGrindByName(player, gridName, force, asPlayer, out var objection))
-            {
-                Context.Respond($"Failed grinding: {objection.Message}; To proceed anyway, type the same command again.", Color.Yellow);
-                QueryForce(gridName, pid);
-                return;
-            }
-
-            Context.Respond($"Finished grinding grid: {gridName}");
+            var confirmed = ConfirmationCollection.IsConfirmation(pid, gridName);
+            var objections = new List<IGrindObjection>();
+            Grinder.TryGrindByName(player, gridName, confirmed, asPlayer, objections);
+            Respond(gridName, pid, confirmed, objections);
         });
 
         [Command("this", "Grind a grid that the player is looking at or seated on.")]
@@ -58,28 +56,90 @@ namespace InstantGrinder
         {
             var player = Context.Player as MyPlayer;
             var pid = player?.SteamId() ?? 0L;
-            var force = TestForce(pid, "this");
-
-            if (!Grinder.GrindGridSelected(Context.Player as MyPlayer, force, asPlayer, out var objection))
-            {
-                Context.Respond($"Failed grinding: \"{objection.Message}\"; To proceed, type the same command.", Color.Yellow);
-                QueryForce("this", pid);
-                return;
-            }
-
-            Context.Respond("Finished grinding grid");
+            var confirmed = ConfirmationCollection.IsConfirmation(pid, "this");
+            var objections = new List<IGrindObjection>();
+            Grinder.GrindGridSelected(Context.Player as MyPlayer, confirmed, asPlayer, objections);
+            Respond("this", pid, confirmed, objections);
         });
 
-        static bool TestForce(ulong pid, string gridName)
+        void Respond(string command, ulong steamId, bool confirmed, List<IGrindObjection> objections)
         {
-            return _queries.TryGetValue(pid, out var q)
-                   && q.Query == gridName
-                   && (DateTime.UtcNow - q.Timestamp).TotalSeconds < 30;
+            var sb = new StringBuilder();
+
+            if (objections.Count > 0)
+            {
+                FormatObjections(sb, objections);
+            }
+
+            if (confirmed)
+            {
+                Context.Respond("Finished grinding grid");
+
+                ConfirmationCollection.Clear(steamId);
+            }
+            else
+            {
+                sb.AppendLine("Type the same command again to proceed.");
+                Context.Respond(sb.ToString(), Color.Yellow);
+
+                ConfirmationCollection.PendConfirmation(command, steamId);
+            }
         }
 
-        static void QueryForce(string gridName, ulong pid)
+        static void FormatObjections(StringBuilder sb, IReadOnlyList<IGrindObjection> objections)
         {
-            _queries[pid] = (gridName, DateTime.UtcNow);
+            Log.Info(objections.Select(o => o.GetType()).ToStringSeq());
+
+            sb.AppendLine($"Failed grinding ({objections.Count}); reasons:");
+
+            for (var i = 0; i < objections.Count; i++)
+            {
+                switch (objections[i])
+                {
+                    case GrindObjectionMultipleGrinds objection:
+                    {
+                        sb.AppendLine($"[{i + 1}] Grinding multiple grids ({objection.gridNames.Length}):");
+                        for (var j = 0; j < objection.gridNames.Length; j++)
+                        {
+                            sb.AppendLine($"   <{j + 1}> {objection.gridNames[j]}");
+                        }
+
+                        break;
+                    }
+                    case GrindObjectionUnrecoverable objection:
+                    {
+                        sb.AppendLine($"[{i + 1}] Too far to recover components ({objection.gridNames.Length}):");
+                        for (var j = 0; j < objection.gridNames.Length; j++)
+                        {
+                            sb.AppendLine($"   <{j + 1}> {objection.gridNames[j]}");
+                        }
+
+                        break;
+                    }
+                    case GrindObjectionOverflowItems objection:
+                    {
+                        sb.AppendLine($"[{i + 1}] Overflowing character inventory: {objection.itemCount} items");
+
+                        break;
+                    }
+                }
+            }
         }
+
+        [Command("clear", "Clear confirmation collections")]
+        [Permission(MyPromoteLevel.None)]
+        public void ClearConfirmationCollection() => this.CatchAndReport(() =>
+        {
+            var player = Context.Player as MyPlayer;
+            var pid = player?.SteamId() ?? 0L;
+            if (pid != 0)
+            {
+                ConfirmationCollection.Clear(pid);
+            }
+            else
+            {
+                ConfirmationCollection.ClearAll();
+            }
+        });
     }
 }

@@ -10,7 +10,7 @@ namespace InstantGrinder.Patches
         const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
         static readonly FieldInfo Field = typeof(MySlimBlock).GetField(FieldName, Flags);
 
-        public static MyConstructionStockpile Value(this MySlimBlock self)
+        public static MyConstructionStockpile GetStockpile(this MySlimBlock self)
         {
             return (MyConstructionStockpile) Field.GetValue(self);
         }
