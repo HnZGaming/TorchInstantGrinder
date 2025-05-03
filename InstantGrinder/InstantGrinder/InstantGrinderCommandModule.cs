@@ -40,25 +40,26 @@ namespace InstantGrinder
 
         [Command("name", "Grind a grid by name.")]
         [Permission(MyPromoteLevel.None)]
-        public void GrindByName(string gridName, bool asPlayer = false) => this.CatchAndReport(() =>
+        public void GrindByName() => this.CatchAndReport(() =>
         {
+            var gridName = string.Join(" ", Context.Args);
             var player = Context.Player as MyPlayer;
             var pid = player?.SteamId() ?? 0L;
             var confirmed = ConfirmationCollection.IsConfirmation(pid, gridName);
             var objections = new List<IGrindObjection>();
-            Grinder.TryGrindByName(player, gridName, confirmed, asPlayer, objections);
+            Grinder.TryGrindByName(player, gridName, confirmed, objections);
             Respond(gridName, pid, confirmed, objections);
         });
 
         [Command("this", "Grind a grid that the player is looking at or seated on.")]
         [Permission(MyPromoteLevel.None)]
-        public void GrindThis(bool asPlayer = false) => this.CatchAndReport(() =>
+        public void GrindThis() => this.CatchAndReport(() =>
         {
             var player = Context.Player as MyPlayer;
             var pid = player?.SteamId() ?? 0L;
             var confirmed = ConfirmationCollection.IsConfirmation(pid, "this");
             var objections = new List<IGrindObjection>();
-            Grinder.GrindGridSelected(Context.Player as MyPlayer, confirmed, asPlayer, objections);
+            Grinder.GrindGridSelected(Context.Player as MyPlayer, confirmed, objections);
             Respond("this", pid, confirmed, objections);
         });
 

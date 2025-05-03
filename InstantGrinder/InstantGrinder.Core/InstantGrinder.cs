@@ -25,7 +25,7 @@ namespace InstantGrinder.Core
             _config = config;
         }
 
-        public void TryGrindByName(MyPlayer playerOrNull, string gridName, bool confirmed, bool asPlayer, ICollection<IGrindObjection> objections)
+        public void TryGrindByName(MyPlayer playerOrNull, string gridName, bool confirmed, ICollection<IGrindObjection> objections)
         {
             if (!_config.Enabled)
             {
@@ -37,10 +37,10 @@ namespace InstantGrinder.Core
                 throw new InvalidOperationException($"Not found: {gridName}");
             }
 
-            GrindGrids(playerOrNull, gridGroup, confirmed, asPlayer, objections);
+            GrindGrids(playerOrNull, gridGroup, confirmed, objections);
         }
 
-        public void GrindGridSelected(MyPlayer playerOrNull, bool confirmed, bool asPlayer, ICollection<IGrindObjection> objections)
+        public void GrindGridSelected(MyPlayer playerOrNull, bool confirmed, ICollection<IGrindObjection> objections)
         {
             if (!_config.Enabled)
             {
@@ -59,14 +59,13 @@ namespace InstantGrinder.Core
 
             var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(grid);
             var grids = gridGroup.Nodes.Select(n => n.NodeData).ToArray();
-            GrindGrids(playerOrNull, grids, confirmed, asPlayer, objections);
+            GrindGrids(playerOrNull, grids, confirmed, objections);
         }
 
-        void GrindGrids(IMyPlayer playerOrNull, IReadOnlyList<MyCubeGrid> gridGroup, bool confirmed, bool asPlayer, ICollection<IGrindObjection> objections)
+        void GrindGrids(IMyPlayer playerOrNull, IReadOnlyList<MyCubeGrid> gridGroup, bool confirmed, ICollection<IGrindObjection> objections)
         {
             // don't let non-owners grind a grid
             var isNormalPlayer = playerOrNull?.IsNormalPlayer() ?? false;
-            isNormalPlayer |= asPlayer; // pretend like a normal player as an admin
             if (isNormalPlayer && !playerOrNull.OwnsAll(gridGroup))
             {
                 throw new InvalidOperationException("Not yours");
