@@ -74,16 +74,7 @@ namespace InstantGrinder.Core
             var farGrids = new List<MyCubeGrid>();
             foreach (var grid in gridGroup)
             {
-                // don't grind inside a safe zone (because it doesn't work)
-                foreach (var safeZone in MySessionComponentSafeZones.SafeZones)
-                {
-                    if (safeZone.Contains(grid.PositionComp.WorldAABB))
-                    {
-                        throw new InvalidOperationException($"In a safe zone: {grid.DisplayName}");
-                    }
-                }
-
-                // projector doesn't work either
+                // projector doesn't work
                 if (grid.Physics == null)
                 {
                     throw new InvalidOperationException($"Projection: {grid.DisplayName}");
