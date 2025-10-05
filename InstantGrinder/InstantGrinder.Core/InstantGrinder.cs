@@ -57,7 +57,7 @@ namespace InstantGrinder.Core
                 throw new InvalidOperationException("Not found");
             }
 
-            var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(grid);
+            var gridGroup = MyCubeGridGroups.Static.Mechanical.GetGroup(grid);
             var grids = gridGroup.Nodes.Select(n => n.NodeData).ToArray();
             GrindGrids(playerOrNull, grids, confirmed, objections);
         }
@@ -148,7 +148,7 @@ namespace InstantGrinder.Core
             {
                 Utils.DeconstructStockpile(block, playerInventory);
             }
-            
+
             foreach (var grid in gridGroup)
             {
                 grid.Close();

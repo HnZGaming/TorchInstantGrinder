@@ -15,7 +15,7 @@ namespace InstantGrinder.Core
     {
         public static bool TryGetGridGroupByName(string gridName, out MyCubeGrid[] foundGridGroup)
         {
-            foreach (var group in MyCubeGridGroups.Static.Logical.Groups)
+            foreach (var group in MyCubeGridGroups.Static.Mechanical.Groups)
             foreach (var node in group.Nodes)
             {
                 var grid = node.NodeData;
