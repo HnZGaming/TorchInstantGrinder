@@ -22,7 +22,7 @@ namespace InstantGrinder.Patches
             typeof(int),
         };
 
-        delegate void MethodDelegate(
+        delegate MyFixedPoint MethodDelegate(
             MyInventory self,
             MyFixedPoint amount,
             MyObjectBuilder_PhysicalObject objectBuilder,
@@ -35,12 +35,12 @@ namespace InstantGrinder.Patches
         static readonly MethodInfo Method = typeof(MyInventory).GetMethod(MethodName, Flags, null, ParameterTypes, null);
         static readonly MethodDelegate MethodDelegateInstance = (MethodDelegate)Delegate.CreateDelegate(typeof(MethodDelegate), Method);
 
-        public static void AddItemsInternal(
+        public static MyFixedPoint AddItemsInternal(
             this MyInventory self,
             MyObjectBuilder_PhysicalObject objectBuilder,
             MyFixedPoint amount)
         {
-            MethodDelegateInstance(self, amount, objectBuilder);
+            return MethodDelegateInstance(self, amount, objectBuilder);
         }
     }
 }
